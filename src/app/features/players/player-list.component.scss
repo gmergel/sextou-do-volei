@@ -9,29 +9,26 @@
 .beach-bg {
   position: relative;
   min-height: 100dvh;
-  /* Imagem de fundo: praia com vôlei */
   background:
     url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80')
     center center / cover no-repeat fixed;
-
-  /* Fallback gradient caso a imagem não carregue */
-  background-color: #0077b6;
+  background-color: var(--ocean-deep);
 }
 
-/* Overlay escuro para legibilidade do texto */
 .overlay {
   position: fixed;
   inset: 0;
+  /* Gradiente que reforça os tons da foto: céu azul → horizonte quente */
   background: linear-gradient(
     180deg,
-    rgba(2, 62, 138, 0.7) 0%,
-    rgba(0, 0, 0, 0.55) 50%,
-    rgba(247, 127, 0, 0.5) 100%
+    rgba(14, 77, 110, 0.72) 0%,
+    rgba(27, 60, 80, 0.50) 40%,
+    rgba(232, 117, 44, 0.38) 75%,
+    rgba(199, 77, 60, 0.32) 100%
   );
   z-index: 0;
 }
 
-/* Container principal */
 .container {
   position: relative;
   z-index: 1;
@@ -40,67 +37,133 @@
   padding: 24px 16px 40px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 20px;
 }
 
 /* ---- Header ---- */
 .header {
   text-align: center;
   padding-top: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 
   &__icon {
-    font-size: 3rem;
-    display: block;
-    animation: bounce 2s ease-in-out infinite;
+    font-size: 2.2rem;
+    animation: bounce 1.8s cubic-bezier(0.25, 0, 0.35, 1) infinite;
   }
 
-  &__title {
+  &__brand {
     font-family: var(--font-display);
     font-size: 2.8rem;
     letter-spacing: 2px;
     color: var(--white);
-    text-shadow: 2px 3px 6px var(--shadow);
+    text-shadow: 2px 3px 8px var(--shadow);
     line-height: 1;
-    margin-top: 8px;
+    margin: 0;
   }
 
-  &__subtitle {
-    font-size: 1.1rem;
+  &__location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.95rem;
     font-weight: 600;
-    color: var(--sand-light);
-    margin-top: 6px;
+    color: var(--sand-mid);
     text-shadow: 1px 1px 4px var(--shadow);
+    margin-top: 6px;
+  }
+
+  &__pin {
+    width: 16px;
+    height: 16px;
+    stroke: var(--sunset-orange);
+    flex-shrink: 0;
+  }
+
+  &__datetime {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--sand-light);
+    letter-spacing: 0.5px;
+    text-shadow: 1px 1px 4px var(--shadow);
+  }
+
+  &__question {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    letter-spacing: 1px;
+    color: var(--sand-mid);
+    text-shadow: 1px 2px 6px var(--shadow);
+    margin-top: 10px;
   }
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
+  0%   { transform: translateY(0) scaleX(1) scaleY(1); }
+  10%  { transform: translateY(-24px) scaleX(0.95) scaleY(1.05); }
+  20%  { transform: translateY(-22px) scaleX(0.97) scaleY(1.03); }
+  35%  { transform: translateY(0) scaleX(1.08) scaleY(0.88); }
+  42%  { transform: translateY(0) scaleX(1.02) scaleY(0.96); }
+  50%  { transform: translateY(-12px) scaleX(0.97) scaleY(1.03); }
+  65%  { transform: translateY(0) scaleX(1.04) scaleY(0.94); }
+  72%  { transform: translateY(0) scaleX(1.01) scaleY(0.98); }
+  80%  { transform: translateY(-4px) scaleX(0.99) scaleY(1.01); }
+  90%  { transform: translateY(0) scaleX(1.01) scaleY(0.99); }
+  100% { transform: translateY(0) scaleX(1) scaleY(1); }
 }
 
-/* ---- Counter badge ---- */
-.counter {
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 16px;
-  padding: 12px 20px;
+/* ---- Contadores (3 badges) ---- */
+.counters {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+
+  &__badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 12px 8px;
+    border-radius: 14px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+
+    &--confirmed {
+      border-color: rgba(58, 176, 106, 0.45);
+      background: rgba(58, 176, 106, 0.18);
+    }
+
+    &--pending {
+      border-color: rgba(245, 166, 35, 0.45);
+      background: rgba(245, 166, 35, 0.15);
+    }
+
+    &--declined {
+      border-color: rgba(217, 80, 64, 0.55);
+      background: rgba(199, 77, 60, 0.25);
+    }
+  }
 
   &__number {
     font-family: var(--font-display);
-    font-size: 2.4rem;
-    color: var(--sunset-orange);
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--sand-light);
     text-shadow: 1px 1px 3px var(--shadow);
   }
 
   &__label {
-    font-size: 1rem;
-    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(252, 232, 195, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
   }
 }
 
@@ -109,44 +172,109 @@
   list-style: none;
   display: flex;
   flex-direction: column;
+  gap: 10px;
+}
+
+.player-list__item {
+  display: flex;
+  align-items: center;
   gap: 12px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 2px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: border-color 0.3s ease, background 0.3s ease;
 
-  &__item {
-    transform: translateX(0);
-    transition: transform 0.2s ease;
+  &--confirmed {
+    background: rgba(58, 176, 106, 0.22);
+    border-color: rgba(58, 176, 106, 0.55);
+  }
 
-    &:active {
-      transform: scale(0.97);
-    }
+  &--declined {
+    background: rgba(199, 77, 60, 0.28);
+    border-color: rgba(217, 80, 64, 0.6);
   }
 }
 
-/* ---- Player button ---- */
-.player-btn {
+/* ---- Info do jogador (avatar + nome) ---- */
+.player-info {
   display: flex;
   align-items: center;
-  gap: 14px;
-  width: 100%;
-  padding: 14px 16px;
-  border: 2px solid rgba(255, 255, 255, 0.2);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--white);
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+
+  &__avatar {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    /* Gradiente pôr-do-sol (tons da foto) como estado padrão */
+    background: linear-gradient(135deg, var(--sunset-gold), var(--sunset-orange));
+    color: var(--white);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 2px 8px var(--shadow);
+
+    &--confirmed {
+      background: linear-gradient(135deg, var(--yes-light), var(--yes-deep));
+      box-shadow: 0 2px 12px rgba(58, 176, 106, 0.45);
+    }
+
+    &--declined {
+      background: linear-gradient(135deg, var(--no-light), var(--no-deep));
+      box-shadow: 0 2px 12px rgba(199, 77, 60, 0.45);
+    }
+  }
+
+  &__name {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ---- Botões de ação (Vou / Não posso) ---- */
+.player-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: var(--glass-bg);
+  color: rgba(252, 232, 195, 0.65);
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 1rem;
-  text-align: left;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-tap-highlight-color: transparent;
-  outline: none;
+  flex: 1;
+  min-width: 0;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.22);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  svg {
+    width: 18px;
+    height: 18px;
   }
 
   &:focus-visible {
@@ -154,89 +282,51 @@
     outline-offset: 2px;
   }
 
-  /* Estado confirmado */
-  &--confirmed {
-    background: rgba(0, 180, 80, 0.35);
-    border-color: rgba(0, 220, 100, 0.6);
-    box-shadow: 0 0 20px rgba(0, 200, 80, 0.15);
-
+  /* ---- Variante: Vou jogar ---- */
+  &--yes {
     &:hover {
-      background: rgba(0, 180, 80, 0.45);
+      background: rgba(58, 176, 106, 0.25);
+      border-color: rgba(58, 176, 106, 0.5);
+      color: var(--yes-light);
+    }
+
+    &.action-btn--active {
+      background: rgba(58, 176, 106, 0.4);
+      border-color: var(--yes-base);
+      color: var(--yes-light);
+      box-shadow: 0 0 14px rgba(58, 176, 106, 0.35);
+      animation: pop-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
-  /* Avatar (inicial do nome) */
-  &__avatar {
-    flex-shrink: 0;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 1.5rem;
-    background: linear-gradient(135deg, var(--ocean-blue), var(--ocean-deep));
-    color: var(--white);
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  /* ---- Variante: Não posso — vermelho realçado ---- */
+  &--no {
+    &:hover {
+      background: rgba(199, 77, 60, 0.35);
+      border-color: rgba(217, 80, 64, 0.65);
+      color: #ff9e8e;
+    }
 
-    &--active {
-      background: linear-gradient(135deg, #00c853, #009624);
-      box-shadow: 0 2px 12px rgba(0, 200, 80, 0.4);
+    &.action-btn--active {
+      background: rgba(199, 77, 60, 0.55);
+      border-color: var(--sunset-coral);
+      color: #ffbcad;
+      box-shadow: 0 0 18px rgba(217, 80, 64, 0.5);
+      animation: pop-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
-
-  /* Nome do jogador */
-  &__name {
-    flex: 1;
-    font-size: 1.15rem;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-  }
-
-  /* Status / check icon */
-  &__status {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-  }
-
-  &__tap-hint {
-    font-size: 0.7rem;
-    font-weight: 400;
-    color: rgba(255, 255, 255, 0.5);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-}
-
-.icon-check {
-  width: 28px;
-  height: 28px;
-  color: #69f0ae;
-  filter: drop-shadow(0 0 4px rgba(105, 240, 174, 0.5));
-  animation: pop-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes pop-in {
-  0% {
-    transform: scale(0);
-    opacity: 0;
-  }
-  70% {
-    transform: scale(1.2);
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+  0%   { transform: scale(0.8); opacity: 0.5; }
+  70%  { transform: scale(1.1); }
+  100% { transform: scale(1);   opacity: 1; }
 }
 
 /* ---- Footer ---- */
 .footer {
   text-align: center;
-  padding: 16px 0 8px;
+  padding: 8px 0;
 
   p {
     font-size: 1rem;
@@ -254,17 +344,17 @@
     font-size: 3.5rem;
   }
 
-  .player-btn {
-    padding: 18px 20px;
+  .player-info__name {
+    font-size: 1.2rem;
+  }
 
-    &__name {
-      font-size: 1.25rem;
-    }
+  .action-btn {
+    padding: 10px 14px;
+    min-width: 66px;
 
-    &__avatar {
-      width: 56px;
-      height: 56px;
-      font-size: 1.7rem;
+    svg {
+      width: 22px;
+      height: 22px;
     }
   }
 }

@@ -3,43 +3,82 @@
 
   <main class="container">
     <!-- Header -->
-    <header class="header">
-      <span class="header__icon">🏐</span>
-      <h1 class="header__title">Sextou do Vôlei</h1>
-      <p class="header__subtitle">Quem vai jogar hoje?</p>
+    <header class="header">      
+      <span class="header__icon">🏐</span><span style="font-size: 1.2rem" class="header__question">#Sextou do Vôlei</span>
+      <h4 class="header__brand">Quem vai jogar?</h4>
+      <p class="header__location">
+        <svg class="header__pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+          <circle cx="12" cy="10" r="3"></circle>
+        </svg>
+        My Beach
+      </p>
+      <span class="header__datetime">25/04 • 19h–21h</span>      
     </header>
 
-    <!-- Contador -->
-    <div class="counter">
-      <span class="counter__number">{{ confirmedCount() }}</span>
-      <span class="counter__label">/ {{ players().length }} confirmados</span>
+    <!-- Contadores -->
+    <div class="counters">
+      <div class="counters__badge counters__badge--confirmed">
+        <span class="counters__number">{{ confirmedCount() }}</span>
+        <span class="counters__label">vão jogar</span>
+      </div>
+      <div class="counters__badge counters__badge--pending">
+        <span class="counters__number">{{ players().length - confirmedCount() - declinedCount() }}</span>
+        <span class="counters__label">sem resposta</span>
+      </div>
+      <div class="counters__badge counters__badge--declined">
+        <span class="counters__number">{{ declinedCount() }}</span>
+        <span class="counters__label">não podem</span>
+      </div>
     </div>
 
     <!-- Lista de jogadores -->
     <ul class="player-list" role="list">
       @for (player of players(); track player.id) {
-        <li class="player-list__item">
-          <button
-            class="player-btn"
-            [class.player-btn--confirmed]="player.confirmed"
-            (click)="togglePlayer(player.id)"
-            [attr.aria-pressed]="player.confirmed"
-            [attr.aria-label]="player.name + (player.confirmed ? ' - confirmado' : ' - não confirmado')"
-          >
-            <span class="player-btn__avatar" [class.player-btn__avatar--active]="player.confirmed">
+        <li class="player-list__item"
+          [class.player-list__item--confirmed]="player.status === 'confirmed'"
+          [class.player-list__item--declined]="player.status === 'declined'"
+        >
+          <!-- Avatar + Nome -->
+          <span class="player-info">
+            <span class="player-info__avatar"
+              [class.player-info__avatar--confirmed]="player.status === 'confirmed'"
+              [class.player-info__avatar--declined]="player.status === 'declined'"
+            >
               {{ player.initial }}
             </span>
-            <span class="player-btn__name">{{ player.name }}</span>
-            <span class="player-btn__status">
-              @if (player.confirmed) {
-                <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              } @else {
-                <span class="player-btn__tap-hint">toque para confirmar</span>
-              }
-            </span>
-          </button>
+            <span class="player-info__name">{{ player.name }}</span>
+          </span>
+
+          <!-- Ações -->
+          <div class="player-actions" role="group" [attr.aria-label]="'Resposta de ' + player.name">
+            <button
+              class="action-btn action-btn--yes"
+              [class.action-btn--active]="player.status === 'confirmed'"
+              (click)="setStatus(player.id, 'confirmed')"
+              [attr.aria-pressed]="player.status === 'confirmed'"
+              aria-label="Vou jogar"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Vou!</span>
+            </button>
+
+            <button
+              class="action-btn action-btn--no"
+              [class.action-btn--active]="player.status === 'declined'"
+              (click)="setStatus(player.id, 'declined')"
+              [attr.aria-pressed]="player.status === 'declined'"
+              aria-label="Não posso"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+              <span>Não</span>
+            </button>
+          </div>
         </li>
       }
     </ul>

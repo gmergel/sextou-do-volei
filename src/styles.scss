@@ -19,17 +19,41 @@ body {
   color: #fff;
 }
 
-/* Variáveis de tema - Beach Volleyball */
+/* Variáveis de tema - Paleta extraída da foto de praia */
 :root {
-  --sand-light: #f5e6c8;
-  --sand-dark: #d4a853;
-  --ocean-blue: #0077b6;
-  --ocean-deep: #023e8a;
-  --sky-light: #90e0ef;
-  --sunset-orange: #f77f00;
-  --sunset-red: #d62828;
-  --white: #ffffff;
-  --shadow: rgba(0, 0, 0, 0.3);
+  /* Areia — tons quentes dominantes da foto */
+  --sand-light: #fce8c3;
+  --sand-mid: #e2b96f;
+  --sand-dark: #c89540;
+
+  /* Céu / Oceano — azuis da parte superior da imagem */
+  --sky-light: #7ad4e8;
+  --sky-mid: #3fafd0;
+  --ocean-blue: #1b7fa6;
+  --ocean-deep: #0e4d6e;
+
+  /* Pôr-do-sol — laranjas e corais do horizonte */
+  --sunset-gold: #f5a623;
+  --sunset-orange: #e8752c;
+  --sunset-coral: #d95040;
+
+  /* Feedback — derivados da paleta, não cores genéricas */
+  --yes-light: #8fd9a8;
+  --yes-base: #3ab06a;
+  --yes-deep: #267d49;
+  --no-light: #e8907e;
+  --no-base: #c74d3c;
+  --no-deep: #8b2e22;
+
+  /* Neutros */
+  --white: #fff8ee;
+  --white-pure: #ffffff;
+  --shadow: rgba(14, 40, 55, 0.4);
+
+  /* Glass — tintado com areia em vez de branco puro */
+  --glass-bg: rgba(252, 232, 195, 0.12);
+  --glass-border: rgba(252, 232, 195, 0.22);
+  --glass-bg-hover: rgba(252, 232, 195, 0.22);
 
   --font-display: 'Bebas Neue', Impact, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
