@@ -19,7 +19,7 @@
     <!-- Contadores -->
     <div class="counters">
       <div class="counters__badge counters__badge--confirmed">
-        <span class="counters__number">{{ confirmedCount() }}</span>
+        <span class="counters__number">{{ confirmedCount() }}/{{ totalPlayers }}</span>
         <span class="counters__label">vão jogar</span>
       </div>
       <div class="counters__badge counters__badge--pending">
@@ -32,6 +32,17 @@
       </div>
     </div>
 
+    <!-- Banner elenco completo -->
+    @if (isFull()) {
+      <div class="full-banner">
+        <span class="full-banner__icon">🔒</span>
+        <span class="full-banner__text">Times fechados!</span>
+      </div>
+    }
+
+    <!-- Label da seção -->
+    <p class="section-label">{{ players().length }} jogadores convidados</p>
+
     <!-- Lista de jogadores -->
     <ul class="player-list" role="list">
       @for (player of players(); track player.id) {
@@ -39,15 +50,14 @@
           [class.player-list__item--confirmed]="player.status === 'confirmed'"
           [class.player-list__item--declined]="player.status === 'declined'"
         >
-          <!-- Avatar + Nome -->
+          <!-- Nome -->
           <span class="player-info">
-            <span class="player-info__avatar"
-              [class.player-info__avatar--confirmed]="player.status === 'confirmed'"
-              [class.player-info__avatar--declined]="player.status === 'declined'"
-            >
-              {{ player.initial }}
-            </span>
             <span class="player-info__name">{{ player.name }}</span>
+            @if (player.lastChange) {
+              <span class="player-info__timestamp">
+                {{ player.lastChange | date:'dd/MM HH:mm' }}
+              </span>
+            }
           </span>
 
           <!-- Ações -->
@@ -55,9 +65,11 @@
             <button
               class="action-btn action-btn--yes"
               [class.action-btn--active]="player.status === 'confirmed'"
+              [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
+              [disabled]="isFull() && player.status !== 'confirmed'"
               (click)="setStatus(player.id, 'confirmed')"
               [attr.aria-pressed]="player.status === 'confirmed'"
-              aria-label="Vou jogar"
+              [attr.aria-label]="isFull() && player.status !== 'confirmed' ? 'Elenco completo' : 'Vou jogar'"
             >
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
                 <polyline points="20 6 9 17 4 12"></polyline>

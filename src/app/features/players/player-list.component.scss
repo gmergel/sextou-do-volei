@@ -21,10 +21,10 @@
   /* Gradiente que reforça os tons da foto: céu azul → horizonte quente */
   background: linear-gradient(
     180deg,
-    rgba(14, 77, 110, 0.72) 0%,
-    rgba(27, 60, 80, 0.50) 40%,
-    rgba(232, 117, 44, 0.38) 75%,
-    rgba(199, 77, 60, 0.32) 100%
+    rgba(14, 77, 110, 0.82) 0%,
+    rgba(27, 60, 80, 0.65) 40%,
+    rgba(232, 117, 44, 0.52) 75%,
+    rgba(199, 77, 60, 0.48) 100%
   );
   z-index: 0;
 }
@@ -68,7 +68,7 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    font-size: 0.95rem;
+    font-size: 1.15rem;
     font-weight: 600;
     color: var(--sand-mid);
     text-shadow: 1px 1px 4px var(--shadow);
@@ -76,15 +76,15 @@
   }
 
   &__pin {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     stroke: var(--sunset-orange);
     flex-shrink: 0;
   }
 
   &__datetime {
     font-family: var(--font-body);
-    font-size: 0.9rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: var(--sand-light);
     letter-spacing: 0.5px;
@@ -118,7 +118,8 @@
 /* ---- Contadores (3 badges) ---- */
 .counters {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
   gap: 10px;
 
   &__badge {
@@ -134,8 +135,21 @@
     border: 1px solid var(--glass-border);
 
     &--confirmed {
-      border-color: rgba(58, 176, 106, 0.45);
-      background: rgba(58, 176, 106, 0.18);
+      grid-row: 1 / 3;
+      border-color: rgba(40, 210, 100, 0.55);
+      background: rgba(40, 200, 100, 0.25);
+      padding: 20px 8px;
+      justify-content: center;
+
+      .counters__number {
+        font-size: 3rem;
+        color: #a8ffc8;
+      }
+
+      .counters__label {
+        font-size: 0.8rem;
+        color: rgba(168, 255, 200, 0.85);
+      }
     }
 
     &--pending {
@@ -167,6 +181,47 @@
   }
 }
 
+/* ---- Banner elenco completo ---- */
+.full-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+  animation: slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &__icon {
+    font-size: 1rem;
+  }
+
+  &__text {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: var(--sand-light);
+    text-transform: uppercase;
+  }
+}
+
+@keyframes slide-in {
+  0%   { opacity: 0; transform: translateY(-10px) scale(0.95); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ---- Label da seção ---- */
+.section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(252, 232, 195, 0.55);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: -10px;
+  text-align: center;
+}
+
 /* ---- Player list ---- */
 .player-list {
   list-style: none;
@@ -188,8 +243,9 @@
   transition: border-color 0.3s ease, background 0.3s ease;
 
   &--confirmed {
-    background: rgba(58, 176, 106, 0.22);
-    border-color: rgba(58, 176, 106, 0.55);
+    background: rgba(40, 200, 100, 0.32);
+    border-color: rgba(40, 210, 100, 0.65);
+    box-shadow: 0 0 12px rgba(40, 200, 100, 0.15);
   }
 
   &--declined {
@@ -198,40 +254,13 @@
   }
 }
 
-/* ---- Info do jogador (avatar + nome) ---- */
+/* ---- Info do jogador ---- */
 .player-info {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 2px;
   flex: 1;
   min-width: 0;
-
-  &__avatar {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: var(--font-display);
-    font-size: 1.4rem;
-    /* Gradiente pôr-do-sol (tons da foto) como estado padrão */
-    background: linear-gradient(135deg, var(--sunset-gold), var(--sunset-orange));
-    color: var(--white);
-    transition: background 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 2px 8px var(--shadow);
-
-    &--confirmed {
-      background: linear-gradient(135deg, var(--yes-light), var(--yes-deep));
-      box-shadow: 0 2px 12px rgba(58, 176, 106, 0.45);
-    }
-
-    &--declined {
-      background: linear-gradient(135deg, var(--no-light), var(--no-deep));
-      box-shadow: 0 2px 12px rgba(199, 77, 60, 0.45);
-    }
-  }
 
   &__name {
     font-size: 1.1rem;
@@ -240,6 +269,14 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  &__timestamp {
+    font-size: 0.65rem;
+    font-weight: 500;
+    color: rgba(252, 232, 195, 0.5);
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 }
 
@@ -277,6 +314,12 @@
     height: 18px;
   }
 
+  &--locked {
+    opacity: 0.3;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
   &:focus-visible {
     outline: 3px solid var(--sky-light);
     outline-offset: 2px;
@@ -284,27 +327,31 @@
 
   /* ---- Variante: Vou jogar ---- */
   &--yes {
-    &:hover {
-      background: rgba(58, 176, 106, 0.25);
-      border-color: rgba(58, 176, 106, 0.5);
-      color: var(--yes-light);
+    @media (hover: hover) {
+      &:hover {
+        background: rgba(58, 176, 106, 0.25);
+        border-color: rgba(58, 176, 106, 0.5);
+        color: var(--yes-light);
+      }
     }
 
     &.action-btn--active {
-      background: rgba(58, 176, 106, 0.4);
-      border-color: var(--yes-base);
-      color: var(--yes-light);
-      box-shadow: 0 0 14px rgba(58, 176, 106, 0.35);
+      background: rgba(40, 200, 100, 0.5);
+      border-color: #2ecc71;
+      color: #a8ffc8;
+      box-shadow: 0 0 18px rgba(40, 200, 100, 0.45);
       animation: pop-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
   }
 
   /* ---- Variante: Não posso — vermelho realçado ---- */
   &--no {
-    &:hover {
-      background: rgba(199, 77, 60, 0.35);
-      border-color: rgba(217, 80, 64, 0.65);
-      color: #ff9e8e;
+    @media (hover: hover) {
+      &:hover {
+        background: rgba(199, 77, 60, 0.35);
+        border-color: rgba(217, 80, 64, 0.65);
+        color: #ff9e8e;
+      }
     }
 
     &.action-btn--active {
