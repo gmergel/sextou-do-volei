@@ -1,0 +1,3 @@
+{
+  "volleyball": "placeholder - replace with actual favicon.ico"
+}
