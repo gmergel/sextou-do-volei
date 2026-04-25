@@ -16,6 +16,19 @@
       <span class="header__datetime">25/04 • 19h–21h</span>      
     </header>
 
+    <!-- Banner de status -->
+    @if (isFull()) {
+      <div class="status-banner status-banner--closed" (click)="showFullAlert()">
+        <span class="status-banner__icon">🔒</span>
+        <span class="status-banner__text">Times fechados!</span>
+      </div>
+    } @else {
+      <div class="status-banner status-banner--open" (click)="scrollToPlayers()">
+        <span class="status-banner__icon">✋</span>
+        <span class="status-banner__text">Confirme sua presença!</span>
+      </div>
+    }
+
     <!-- Contadores -->
     <div class="counters">
       <div class="counters__badge counters__badge--confirmed">
@@ -32,19 +45,11 @@
       </div>
     </div>
 
-    <!-- Banner elenco completo -->
-    @if (isFull()) {
-      <div class="full-banner">
-        <span class="full-banner__icon">🔒</span>
-        <span class="full-banner__text">Times fechados!</span>
-      </div>
-    }
-
     <!-- Label da seção -->
     <p class="section-label">{{ players().length }} jogadores convidados</p>
 
     <!-- Lista de jogadores -->
-    <ul class="player-list" role="list">
+    <ul class="player-list" role="list" id="player-list">
       @for (player of players(); track player.id) {
         <li class="player-list__item"
           [class.player-list__item--confirmed]="player.status === 'confirmed'"
@@ -101,3 +106,21 @@
     </footer>
   </main>
 </div>
+
+<!-- Modal Times Fechados -->
+@if (showModal()) {
+  <div class="modal-backdrop" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <span class="modal__emoji">🏐</span>
+      <h3 class="modal__title">Times fechados!</h3>
+      <p class="modal__text">
+        Já batemos os <strong>{{ totalPlayers }}</strong> jogadores pra essa partida.
+      </p>
+      <p class="modal__text">
+        Mas fica ligado! Se alguém desistir, a vaga abre e você pode entrar no jogo.
+      </p>
+      <p class="modal__highlight">Enquanto isso, vai treinando esse saque! 💪</p>
+      <button class="modal__btn" (click)="closeModal()">Entendi!</button>
+    </div>
+  </div>
+}

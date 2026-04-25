@@ -181,8 +181,8 @@
   }
 }
 
-/* ---- Banner elenco completo ---- */
-.full-banner {
+/* ---- Banner de status ---- */
+.status-banner {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -192,6 +192,20 @@
   background: var(--glass-bg);
   border: 1.5px solid var(--glass-border);
   animation: slide-in 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &--closed {
+    background: rgba(199, 77, 60, 0.18);
+    border-color: rgba(217, 80, 64, 0.45);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  &--open {
+    background: rgba(245, 166, 35, 0.15);
+    border-color: rgba(245, 166, 35, 0.4);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
 
   &__icon {
     font-size: 1rem;
@@ -368,6 +382,101 @@
   0%   { transform: scale(0.8); opacity: 0.5; }
   70%  { transform: scale(1.1); }
   100% { transform: scale(1);   opacity: 1; }
+}
+
+/* ---- Modal ---- */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fade-in 0.25s ease;
+}
+
+.modal {
+  background: linear-gradient(
+    160deg,
+    rgba(14, 77, 110, 0.92) 0%,
+    rgba(27, 60, 80, 0.95) 50%,
+    rgba(199, 77, 60, 0.85) 100%
+  );
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 32px 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: modal-pop 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &__emoji {
+    font-size: 2.5rem;
+  }
+
+  &__title {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    letter-spacing: 1.5px;
+    color: var(--white);
+    text-shadow: 1px 2px 6px var(--shadow);
+    margin: 0;
+  }
+
+  &__text {
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    color: rgba(252, 232, 195, 0.85);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  &__highlight {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--sand-light);
+    margin: 4px 0 0;
+  }
+
+  &__btn {
+    margin-top: 8px;
+    padding: 10px 32px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modal-pop {
+  0%   { opacity: 0; transform: scale(0.85) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 /* ---- Footer ---- */

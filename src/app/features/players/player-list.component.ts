@@ -19,7 +19,7 @@ export interface Player {
   styleUrl: './player-list.component.scss',
 })
 export class PlayerListComponent {
-  readonly totalPlayers = 14;
+  readonly totalPlayers = 4;
 
   readonly players = signal<Player[]>([
     { id: 1, name: 'Alice', initial: 'A', status: 'pending', lastChange: null },
@@ -76,5 +76,19 @@ export class PlayerListComponent {
         };
       })
     );
+  }
+
+  readonly showModal = signal(false);
+
+  scrollToPlayers(): void {
+    document.getElementById('player-list')?.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  showFullAlert(): void {
+    this.showModal.set(true);
+  }
+
+  closeModal(): void {
+    this.showModal.set(false);
   }
 }
