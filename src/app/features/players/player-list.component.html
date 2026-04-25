@@ -1,0 +1,52 @@
+<div class="beach-bg">
+  <div class="overlay"></div>
+
+  <main class="container">
+    <!-- Header -->
+    <header class="header">
+      <span class="header__icon">🏐</span>
+      <h1 class="header__title">Sextou do Vôlei</h1>
+      <p class="header__subtitle">Quem vai jogar hoje?</p>
+    </header>
+
+    <!-- Contador -->
+    <div class="counter">
+      <span class="counter__number">{{ confirmedCount() }}</span>
+      <span class="counter__label">/ {{ players().length }} confirmados</span>
+    </div>
+
+    <!-- Lista de jogadores -->
+    <ul class="player-list" role="list">
+      @for (player of players(); track player.id) {
+        <li class="player-list__item">
+          <button
+            class="player-btn"
+            [class.player-btn--confirmed]="player.confirmed"
+            (click)="togglePlayer(player.id)"
+            [attr.aria-pressed]="player.confirmed"
+            [attr.aria-label]="player.name + (player.confirmed ? ' - confirmado' : ' - não confirmado')"
+          >
+            <span class="player-btn__avatar" [class.player-btn__avatar--active]="player.confirmed">
+              {{ player.initial }}
+            </span>
+            <span class="player-btn__name">{{ player.name }}</span>
+            <span class="player-btn__status">
+              @if (player.confirmed) {
+                <svg class="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              } @else {
+                <span class="player-btn__tap-hint">toque para confirmar</span>
+              }
+            </span>
+          </button>
+        </li>
+      }
+    </ul>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>🏖️ Bora pra areia!</p>
+    </footer>
+  </main>
+</div>

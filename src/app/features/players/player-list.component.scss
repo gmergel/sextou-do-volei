@@ -1,0 +1,270 @@
+/* ============================================
+   Beach Volleyball Theme - Player List
+   ============================================ */
+
+:host {
+  display: block;
+}
+
+.beach-bg {
+  position: relative;
+  min-height: 100dvh;
+  /* Imagem de fundo: praia com vôlei */
+  background:
+    url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80')
+    center center / cover no-repeat fixed;
+
+  /* Fallback gradient caso a imagem não carregue */
+  background-color: #0077b6;
+}
+
+/* Overlay escuro para legibilidade do texto */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(2, 62, 138, 0.7) 0%,
+    rgba(0, 0, 0, 0.55) 50%,
+    rgba(247, 127, 0, 0.5) 100%
+  );
+  z-index: 0;
+}
+
+/* Container principal */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ---- Header ---- */
+.header {
+  text-align: center;
+  padding-top: 16px;
+
+  &__icon {
+    font-size: 3rem;
+    display: block;
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  &__title {
+    font-family: var(--font-display);
+    font-size: 2.8rem;
+    letter-spacing: 2px;
+    color: var(--white);
+    text-shadow: 2px 3px 6px var(--shadow);
+    line-height: 1;
+    margin-top: 8px;
+  }
+
+  &__subtitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--sand-light);
+    margin-top: 6px;
+    text-shadow: 1px 1px 4px var(--shadow);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* ---- Counter badge ---- */
+.counter {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+  padding: 12px 20px;
+
+  &__number {
+    font-family: var(--font-display);
+    font-size: 2.4rem;
+    color: var(--sunset-orange);
+    text-shadow: 1px 1px 3px var(--shadow);
+  }
+
+  &__label {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+}
+
+/* ---- Player list ---- */
+.player-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__item {
+    transform: translateX(0);
+    transition: transform 0.2s ease;
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}
+
+/* ---- Player button ---- */
+.player-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--white);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  text-align: left;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--sky-light);
+    outline-offset: 2px;
+  }
+
+  /* Estado confirmado */
+  &--confirmed {
+    background: rgba(0, 180, 80, 0.35);
+    border-color: rgba(0, 220, 100, 0.6);
+    box-shadow: 0 0 20px rgba(0, 200, 80, 0.15);
+
+    &:hover {
+      background: rgba(0, 180, 80, 0.45);
+    }
+  }
+
+  /* Avatar (inicial do nome) */
+  &__avatar {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, var(--ocean-blue), var(--ocean-deep));
+    color: var(--white);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+    &--active {
+      background: linear-gradient(135deg, #00c853, #009624);
+      box-shadow: 0 2px 12px rgba(0, 200, 80, 0.4);
+    }
+  }
+
+  /* Nome do jogador */
+  &__name {
+    flex: 1;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+
+  /* Status / check icon */
+  &__status {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+  }
+
+  &__tap-hint {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.icon-check {
+  width: 28px;
+  height: 28px;
+  color: #69f0ae;
+  filter: drop-shadow(0 0 4px rgba(105, 240, 174, 0.5));
+  animation: pop-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---- Footer ---- */
+.footer {
+  text-align: center;
+  padding: 16px 0 8px;
+
+  p {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+/* ---- Responsividade ---- */
+@media (min-width: 600px) {
+  .container {
+    padding: 40px 24px 60px;
+  }
+
+  .header__title {
+    font-size: 3.5rem;
+  }
+
+  .player-btn {
+    padding: 18px 20px;
+
+    &__name {
+      font-size: 1.25rem;
+    }
+
+    &__avatar {
+      width: 56px;
+      height: 56px;
+      font-size: 1.7rem;
+    }
+  }
+}
