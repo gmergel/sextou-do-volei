@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Player, PlayerStatus, Game } from '../../models/game.model';
 import { GameService } from './game.service';
@@ -8,7 +8,7 @@ import { GameService } from './game.service';
 @Component({
   selector: 'app-player-list',
   standalone: true,
-  imports: [DatePipe],
+  imports: [DatePipe, RouterLink],
   templateUrl: './player-list.component.html',
   styleUrl: './player-list.component.scss',
 })
@@ -32,8 +32,18 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     if (!game) return 14;
     const createdAt = new Date(game.createdAt).getTime();
     const elapsed = Math.max(0, this.now() - createdAt);
-    const slots = game.totalPlayers;
-    return Math.min(23, slots + Math.floor(elapsed / 5000));
+    const baseSlots = game.totalPlayers + Math.floor(elapsed / 5000);
+    const players = this.players();
+
+    // Cada jogador elegível que declinou libera +1 vaga
+    let eligible = Math.min(23, baseSlots);
+    let prev = -1;
+    while (eligible !== prev && eligible <= 23) {
+      prev = eligible;
+      const declined = players.filter(p => p.id <= eligible && p.status === 'declined').length;
+      eligible = Math.min(23, baseSlots + declined);
+    }
+    return eligible;
   });
 
   readonly confirmedCount = computed(() =>
@@ -90,6 +100,20 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   readonly showModal = signal(false);
   readonly showWaitModal = signal(false);
+  readonly waitPlayerId = signal(0);
+
+  /** Segundos restantes para o jogador do modal poder confirmar */
+  readonly waitSeconds = computed(() => {
+    const game = this.game();
+    if (!game) return 0;
+    const pid = this.waitPlayerId();
+    if (pid <= this.maxEligibleId()) return 0;
+    const createdAt = new Date(game.createdAt).getTime();
+    const elapsed = this.now() - createdAt;
+    const declined = this.players().filter(p => p.id <= pid && p.status === 'declined').length;
+    const needMs = (pid - game.totalPlayers - declined) * 5000;
+    return Math.max(0, Math.ceil((needMs - elapsed) / 1000));
+  });
 
   scrollToPlayers(): void {
     document.getElementById('player-list')?.scrollIntoView({ behavior: 'smooth' });
@@ -103,7 +127,8 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     this.showModal.set(false);
   }
 
-  showWaitAlert(): void {
+  showWaitAlert(playerId: number): void {
+    this.waitPlayerId.set(playerId);
     this.showWaitModal.set(true);
   }
 

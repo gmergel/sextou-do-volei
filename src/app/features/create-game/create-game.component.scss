@@ -89,11 +89,10 @@
 
   &__label {
     font-family: var(--font-display);
-    font-size: 0.85rem;
+    font-size: 1.25rem;
     font-weight: 700;
-    color: var(--sand-light);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    color: var(--white);
+    letter-spacing: 0.5px;
   }
 
   &__input {
@@ -140,19 +139,20 @@
     margin-top: 8px;
     padding: 14px 24px;
     border-radius: 14px;
-    border: 2px solid rgba(40, 210, 100, 0.55);
-    background: rgba(40, 200, 100, 0.25);
-    color: #a8ffc8;
+    border: none;
+    background: #1a8a42;
+    color: #fff;
     font-family: var(--font-display);
     font-size: 1.2rem;
+    font-weight: 800;
     letter-spacing: 1.5px;
     cursor: pointer;
     transition: all 0.25s ease;
     -webkit-tap-highlight-color: transparent;
 
     &:hover:not(:disabled) {
-      background: rgba(40, 200, 100, 0.4);
-      box-shadow: 0 0 20px rgba(40, 200, 100, 0.3);
+      background: #167a3a;
+      box-shadow: 0 4px 20px rgba(26, 138, 66, 0.4);
     }
 
     &:active:not(:disabled) {
@@ -160,7 +160,8 @@
     }
 
     &:disabled {
-      opacity: 0.4;
+      background: rgba(40, 200, 100, 0.35);
+      color: rgba(255, 255, 255, 0.5);
       cursor: not-allowed;
     }
   }
@@ -174,7 +175,7 @@
 
 .time-chip {
   flex: 1;
-  padding: 10px 8px;
+  padding: 12px 8px;
   border-radius: 12px;
   border: 2px solid var(--glass-border);
   background: var(--glass-bg);
@@ -182,7 +183,7 @@
   -webkit-backdrop-filter: blur(10px);
   color: rgba(252, 232, 195, 0.7);
   font-family: var(--font-body);
-  font-size: 0.9rem;
+  font-size: 1.05rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;

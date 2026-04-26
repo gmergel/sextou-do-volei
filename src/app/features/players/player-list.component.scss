@@ -6,6 +6,41 @@
   display: block;
 }
 
+.top-nav {
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--sand-light);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+
+    svg {
+      flex-shrink: 0;
+    }
+
+    &:hover {
+      background: rgba(40, 200, 100, 0.15);
+      border-color: rgba(40, 210, 100, 0.4);
+      color: #a8ffc8;
+    }
+
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}
+
 .beach-bg {
   position: relative;
   min-height: 100dvh;

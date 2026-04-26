@@ -127,7 +127,7 @@
             } @else {
               <button
                 class="action-btn action-btn--yes action-btn--wait"
-                (click)="showWaitAlert()"
+                (click)="showWaitAlert(player.id)"
                 aria-label="Aguarde para confirmar"
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -187,13 +187,19 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <span class="modal__emoji">⏳</span>
       <h3 class="modal__title">Calma, craque!</h3>
+      @if (waitSeconds() > 0) {
+        <p class="modal__text">
+          Sua confirmação libera em <strong>{{ waitSeconds() }}s</strong>.
+        </p>
+      } @else {
+        <p class="modal__text">
+          Sua confirmação acabou de liberar! Feche e confirme 🏐
+        </p>
+      }
       <p class="modal__text">
-        A confirmação segue a ordem de prioridade da lista.
+        Se algum jogador com prioridade disser que <strong>não vai</strong>, sua vaga abre antes!
       </p>
-      <p class="modal__text">
-        Aguarde sua vez — em breve você poderá confirmar presença! 🏐
-      </p>
-      <p class="modal__highlight">Enquanto isso, já pode dizer "Não" se não puder jogar.</p>
+      <p class="modal__highlight">Já pode dizer "Não" se não puder jogar.</p>
       <button class="modal__btn" (click)="closeWaitModal()">Entendi!</button>
     </div>
   </div>

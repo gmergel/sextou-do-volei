@@ -5,13 +5,8 @@
     <header class="header">
       <span class="header__icon">🏐</span>
       <h4 class="header__brand">#Sextou do Vôlei</h4>
-      <p class="header__sub">Escolha um jogo ou crie um novo!</p>
+      <p class="header__sub">Escolha um jogo para confirmar presença!</p>
     </header>
-
-    <!-- Botão criar -->
-    <button class="new-game-btn" (click)="createGame()">
-      <span>＋</span> Novo Jogo
-    </button>
 
     <!-- Lista de jogos -->
     @if (loading()) {
@@ -27,7 +22,7 @@
       <div class="empty">
         <span class="empty__icon">🏖️</span>
         <p class="empty__text">Nenhum jogo criado ainda.</p>
-        <p class="empty__hint">Clique em "Novo Jogo" para começar!</p>
+        <p class="empty__hint">Aguarde a criação de um novo jogo!</p>
       </div>
     } @else {
       <ul class="game-list">

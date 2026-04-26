@@ -14,7 +14,7 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'jogo/new',
+    path: 'jogo/novo',
     loadComponent: () =>
       import('./features/create-game/create-game.component').then(
         (m) => m.CreateGameComponent
