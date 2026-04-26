@@ -249,6 +249,7 @@
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
+  min-height: 64px;
   border-radius: 16px;
   border: 2px solid var(--glass-border);
   background: var(--glass-bg);
@@ -295,6 +296,13 @@
 }
 
 /* ---- Botões de ação (Vou / Não posso) ---- */
+.player-wait {
+  font-size: 0.78rem;
+  color: rgba(252, 232, 195, 0.45);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .player-actions {
   display: flex;
   gap: 8px;
@@ -320,8 +328,9 @@
   letter-spacing: 0.4px;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   -webkit-tap-highlight-color: transparent;
-  flex: 1;
-  min-width: 0;
+  width: 52px;
+  min-width: 52px;
+  flex-shrink: 0;
 
   svg {
     width: 18px;
@@ -356,6 +365,12 @@
       box-shadow: 0 0 18px rgba(40, 200, 100, 0.45);
       animation: pop-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+  }
+
+  /* ---- Variante: Aguardando elegibilidade ---- */
+  &--wait {
+    opacity: 0.35;
+    cursor: not-allowed;
   }
 
   /* ---- Variante: Não posso — vermelho realçado ---- */

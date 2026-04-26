@@ -1,0 +1,110 @@
+<div class="beach-bg">
+  <div class="overlay"></div>
+
+  <main class="container">
+    <header class="header">
+      <span class="header__icon">🏐</span>
+      <h4 class="header__brand">NOVO JOGO</h4>
+      <p class="header__sub">Monte a sessão e compartilhe o link!</p>
+    </header>
+
+    <form class="form" (ngSubmit)="onSubmit()">
+      <!-- Data -->
+      <div class="form__field">
+        <label class="form__label">Data</label>
+        <input
+          class="form__input form__input--date"
+          type="date"
+          [(ngModel)]="date"
+          name="date"
+          required
+        />
+      </div>
+
+      <!-- Horário -->
+      <div class="form__field">
+        <label class="form__label">Horário</label>
+        <div class="time-options">
+          <button
+            type="button"
+            class="time-chip"
+            [class.time-chip--active]="timeOption === 'preset1'"
+            (click)="timeOption = 'preset1'"
+          >19h–21h</button>
+
+          <button
+            type="button"
+            class="time-chip"
+            [class.time-chip--active]="timeOption === 'preset2'"
+            (click)="timeOption = 'preset2'"
+          >20h–22h</button>
+
+          <button
+            type="button"
+            class="time-chip"
+            [class.time-chip--active]="timeOption === 'custom'"
+            (click)="timeOption = 'custom'"
+          >Outro</button>
+        </div>
+
+        @if (timeOption === 'custom') {
+          <div class="custom-time">
+            <div class="custom-time__field">
+              <span class="custom-time__label">Das</span>
+              <select
+                class="form__input form__input--select"
+                [(ngModel)]="customStartHour"
+                name="startHour"
+                (ngModelChange)="onStartHourChange()"
+              >
+                @for (h of startHours; track h) {
+                  <option [ngValue]="h">{{ h }}h</option>
+                }
+              </select>
+            </div>
+            <div class="custom-time__field">
+              <span class="custom-time__label">Até</span>
+              <select
+                class="form__input form__input--select"
+                [(ngModel)]="customEndHour"
+                name="endHour"
+              >
+                @for (h of endHours; track h) {
+                  <option [ngValue]="h">{{ h === 24 ? '00' : h }}h</option>
+                }
+              </select>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Local -->
+      <div class="form__field">
+        <label class="form__label">Local</label>
+        <div class="location-options">
+          @for (loc of locations; track loc) {
+            <button
+              type="button"
+              class="location-chip"
+              [class.location-chip--active]="location === loc"
+              (click)="location = loc"
+            >{{ loc }}</button>
+          }
+        </div>
+      </div>
+
+      <!-- Submit -->
+      <button
+        class="form__btn"
+        type="submit"
+        [disabled]="creating() || !isValid"
+      >
+        @if (creating()) {
+          <span>Criando...</span>
+        } @else {
+          <span>🏖️ Criar Jogo</span>
+        }
+      </button>
+    </form>
+  </main>
+</div>

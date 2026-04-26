@@ -11,9 +11,9 @@
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
           <circle cx="12" cy="10" r="3"></circle>
         </svg>
-        My Beach
+        {{ game()?.location }}
       </p>
-      <span class="header__datetime">25/04 • 19h–21h</span>      
+      <span class="header__datetime">{{ formatGameDate() }} • {{ game()?.time }}</span>      
     </header>
 
     <!-- Banner de status -->
@@ -52,7 +52,7 @@
     } @else {
       <div class="counters">
         <div class="counters__badge counters__badge--confirmed">
-          <span class="counters__number">{{ confirmedCount() }}/{{ totalPlayers }}</span>
+          <span class="counters__number">{{ confirmedCount() }}/{{ totalPlayers() }}</span>
           <span class="counters__label">vão jogar</span>
         </div>
         <div class="counters__badge counters__badge--pending">
@@ -102,27 +102,40 @@
             <span class="player-info__name">{{ player.name }}</span>
             @if (player.lastChange) {
               <span class="player-info__timestamp">
-                {{ player.lastChange | date:'dd/MM HH:mm' }}
+                {{ player.lastChange | date:'dd/MM HH:mm:ss' }}
               </span>
             }
           </span>
 
           <!-- Ações -->
           <div class="player-actions" role="group" [attr.aria-label]="'Resposta de ' + player.name">
-            <button
-              class="action-btn action-btn--yes"
-              [class.action-btn--active]="player.status === 'confirmed'"
-              [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
-              [disabled]="isFull() && player.status !== 'confirmed'"
-              (click)="setStatus(player.id, 'confirmed')"
-              [attr.aria-pressed]="player.status === 'confirmed'"
-              [attr.aria-label]="isFull() && player.status !== 'confirmed' ? 'Elenco completo' : 'Vou jogar'"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <polyline points="20 6 9 17 4 12"></polyline>
-              </svg>
-              <span>Vou!</span>
-            </button>
+            @if (canInteract(player)) {
+              <button
+                class="action-btn action-btn--yes"
+                [class.action-btn--active]="player.status === 'confirmed'"
+                [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
+                [disabled]="isFull() && player.status !== 'confirmed'"
+                (click)="setStatus(player.id, 'confirmed')"
+                [attr.aria-pressed]="player.status === 'confirmed'"
+                [attr.aria-label]="isFull() && player.status !== 'confirmed' ? 'Elenco completo' : 'Vou jogar'"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>Vou!</span>
+              </button>
+            } @else {
+              <button
+                class="action-btn action-btn--yes action-btn--wait"
+                (click)="showWaitAlert()"
+                aria-label="Aguarde para confirmar"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </button>
+            }
 
             <button
               class="action-btn action-btn--no"
@@ -157,13 +170,31 @@
       <span class="modal__emoji">🏐</span>
       <h3 class="modal__title">Times fechados!</h3>
       <p class="modal__text">
-        Já batemos os <strong>{{ totalPlayers }}</strong> jogadores pra essa partida.
+        Já batemos os <strong>{{ totalPlayers() }}</strong> jogadores pra essa partida.
       </p>
       <p class="modal__text">
         Mas fica ligado! Se alguém desistir, a vaga abre e você pode entrar no jogo.
       </p>
       <p class="modal__highlight">Enquanto isso, vai treinando esse saque! 💪</p>
       <button class="modal__btn" (click)="closeModal()">Entendi!</button>
+    </div>
+  </div>
+}
+
+<!-- Modal Aguarde sua vez -->
+@if (showWaitModal()) {
+  <div class="modal-backdrop" (click)="closeWaitModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <span class="modal__emoji">⏳</span>
+      <h3 class="modal__title">Calma, craque!</h3>
+      <p class="modal__text">
+        A confirmação segue a ordem de prioridade da lista.
+      </p>
+      <p class="modal__text">
+        Aguarde sua vez — em breve você poderá confirmar presença! 🏐
+      </p>
+      <p class="modal__highlight">Enquanto isso, já pode dizer "Não" se não puder jogar.</p>
+      <button class="modal__btn" (click)="closeWaitModal()">Entendi!</button>
     </div>
   </div>
 }

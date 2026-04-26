@@ -1,0 +1,53 @@
+<div class="beach-bg">
+  <div class="overlay"></div>
+
+  <main class="container">
+    <header class="header">
+      <span class="header__icon">🏐</span>
+      <h4 class="header__brand">#Sextou do Vôlei</h4>
+      <p class="header__sub">Escolha um jogo ou crie um novo!</p>
+    </header>
+
+    <!-- Botão criar -->
+    <button class="new-game-btn" (click)="createGame()">
+      <span>＋</span> Novo Jogo
+    </button>
+
+    <!-- Lista de jogos -->
+    @if (loading()) {
+      <ul class="game-list">
+        @for (i of [1,2,3]; track i) {
+          <li class="game-card game-card--skeleton">
+            <span class="skeleton skeleton--title"></span>
+            <span class="skeleton skeleton--text"></span>
+          </li>
+        }
+      </ul>
+    } @else if (games().length === 0) {
+      <div class="empty">
+        <span class="empty__icon">🏖️</span>
+        <p class="empty__text">Nenhum jogo criado ainda.</p>
+        <p class="empty__hint">Clique em "Novo Jogo" para começar!</p>
+      </div>
+    } @else {
+      <ul class="game-list">
+        @for (game of games(); track game.uid) {
+          <li class="game-card" (click)="openGame(game.uid)">
+            <div class="game-card__header">
+              <span class="game-card__date">📅 {{ formatDate(game.date) }}</span>
+              <span class="game-card__time">⏰ {{ game.time }}</span>
+            </div>
+            <div class="game-card__body">
+              <span class="game-card__location">📍 {{ game.location }}</span>
+              <span class="game-card__players">👥 {{ game.totalPlayers }} vagas</span>
+            </div>
+          </li>
+        }
+      </ul>
+    }
+
+    <footer class="footer">
+      <p>🏖️ Bora pra areia!</p>
+    </footer>
+  </main>
+</div>
