@@ -17,7 +17,11 @@
     </header>
 
     <!-- Banner de status -->
-    @if (isFull()) {
+    @if (loading()) {
+      <div class="status-banner status-banner--loading">
+        <span class="skeleton skeleton--text" style="width: 180px; height: 18px;"></span>
+      </div>
+    } @else if (isFull()) {
       <div class="status-banner status-banner--closed" (click)="showFullAlert()">
         <span class="status-banner__icon">🔒</span>
         <span class="status-banner__text">Times fechados!</span>
@@ -30,26 +34,64 @@
     }
 
     <!-- Contadores -->
-    <div class="counters">
-      <div class="counters__badge counters__badge--confirmed">
-        <span class="counters__number">{{ confirmedCount() }}/{{ totalPlayers }}</span>
-        <span class="counters__label">vão jogar</span>
+    @if (loading()) {
+      <div class="counters">
+        <div class="counters__badge counters__badge--confirmed">
+          <span class="skeleton skeleton--number-lg"></span>
+          <span class="skeleton skeleton--label"></span>
+        </div>
+        <div class="counters__badge counters__badge--pending">
+          <span class="skeleton skeleton--number"></span>
+          <span class="skeleton skeleton--label"></span>
+        </div>
+        <div class="counters__badge counters__badge--declined">
+          <span class="skeleton skeleton--number"></span>
+          <span class="skeleton skeleton--label"></span>
+        </div>
       </div>
-      <div class="counters__badge counters__badge--pending">
-        <span class="counters__number">{{ players().length - confirmedCount() - declinedCount() }}</span>
-        <span class="counters__label">sem resposta</span>
+    } @else {
+      <div class="counters">
+        <div class="counters__badge counters__badge--confirmed">
+          <span class="counters__number">{{ confirmedCount() }}/{{ totalPlayers }}</span>
+          <span class="counters__label">vão jogar</span>
+        </div>
+        <div class="counters__badge counters__badge--pending">
+          <span class="counters__number">{{ players().length - confirmedCount() - declinedCount() }}</span>
+          <span class="counters__label">sem resposta</span>
+        </div>
+        <div class="counters__badge counters__badge--declined">
+          <span class="counters__number">{{ declinedCount() }}</span>
+          <span class="counters__label">não podem</span>
+        </div>
       </div>
-      <div class="counters__badge counters__badge--declined">
-        <span class="counters__number">{{ declinedCount() }}</span>
-        <span class="counters__label">não podem</span>
-      </div>
-    </div>
+    }
 
     <!-- Label da seção -->
-    <p class="section-label">{{ players().length }} jogadores convidados</p>
+    @if (loading()) {
+      <p class="section-label">
+        <span class="skeleton skeleton--text" style="width: 160px; height: 12px;"></span>
+      </p>
+    } @else {
+      <p class="section-label">{{ players().length }} jogadores convidados</p>
+    }
 
     <!-- Lista de jogadores -->
-    <ul class="player-list" role="list" id="player-list">
+    @if (loading()) {
+      <ul class="player-list" role="list">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <li class="player-list__item skeleton-item">
+            <span class="player-info">
+              <span class="skeleton skeleton--name"></span>
+            </span>
+            <div class="player-actions">
+              <span class="skeleton skeleton--btn"></span>
+              <span class="skeleton skeleton--btn"></span>
+            </div>
+          </li>
+        }
+      </ul>
+    } @else {
+      <ul class="player-list" role="list" id="player-list">
       @for (player of players(); track player.id) {
         <li class="player-list__item"
           [class.player-list__item--confirmed]="player.status === 'confirmed'"
@@ -99,6 +141,7 @@
         </li>
       }
     </ul>
+    }
 
     <!-- Footer -->
     <footer class="footer">

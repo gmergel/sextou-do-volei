@@ -490,6 +490,73 @@
   }
 }
 
+/* ---- Skeleton / Loading Placeholders ---- */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton {
+  display: inline-block;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+
+  &--text {
+    display: inline-block;
+  }
+
+  &--number-lg {
+    width: 80px;
+    height: 42px;
+    border-radius: 10px;
+  }
+
+  &--number {
+    width: 36px;
+    height: 28px;
+    border-radius: 8px;
+  }
+
+  &--label {
+    width: 60px;
+    height: 10px;
+    border-radius: 5px;
+  }
+
+  &--name {
+    width: 120px;
+    height: 16px;
+    border-radius: 6px;
+  }
+
+  &--btn {
+    width: 52px;
+    height: 48px;
+    border-radius: 12px;
+  }
+}
+
+.skeleton-item {
+  opacity: 0.6;
+}
+
+.status-banner--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--glass-bg);
+  border: 1.5px solid var(--glass-border);
+}
+
 /* ---- Responsividade ---- */
 @media (min-width: 600px) {
   .container {
