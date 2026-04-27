@@ -9,17 +9,17 @@
 .beach-bg {
   position: relative;
   min-height: 100dvh;
-  background-color: var(--ocean-deep);
 
   &::before {
     content: '';
     position: fixed;
     inset: 0;
-    z-index: -1;
+    z-index: 0;
     height: 100lvh;
     background:
       url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80')
       center center / cover no-repeat;
+    background-color: var(--ocean-deep);
   }
 }
 
@@ -33,12 +33,12 @@
     rgba(232, 117, 44, 0.52) 75%,
     rgba(199, 77, 60, 0.48) 100%
   );
-  z-index: 0;
+  z-index: 1;
 }
 
 .container {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   max-width: 480px;
   margin: 0 auto;
   padding: 24px 16px 40px;
