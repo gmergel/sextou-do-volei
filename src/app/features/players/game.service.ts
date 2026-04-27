@@ -138,8 +138,8 @@ export class GameService {
       id: newId,
       name: trimmed,
       initial: trimmed.charAt(0).toUpperCase(),
-      status: 'confirmed',
-      lastChange: new Date().toISOString(),
+      status: 'pending',
+      lastChange: null,
       guest: true,
     };
     const playerDoc = doc(this.firestore, 'games', gameId, 'players', String(newId));

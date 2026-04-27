@@ -79,6 +79,7 @@
 .header {
   text-align: center;
   padding-top: 16px;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -161,6 +162,41 @@
   80%  { transform: translateY(-4px) scaleX(0.99) scaleY(1.01); }
   90%  { transform: translateY(0) scaleX(1.01) scaleY(0.99); }
   100% { transform: translateY(0) scaleX(1) scaleY(1); }
+}
+
+/* ---- Botão ajuda (?) ---- */
+.header__help {
+  position: absolute;
+  top: 16px;
+  right: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: rgba(252, 232, 195, 0.7);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: var(--sand-light);
+    }
+  }
 }
 
 /* ---- Contadores (3 badges) ---- */
@@ -332,6 +368,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-transform: uppercase;
   }
 
   &__timestamp {
@@ -670,78 +707,119 @@
 }
 
 /* ---- Formulário Adicionar Convidado ---- */
-.guest-add {
+/* ---- Botão Outro Jogador ---- */
+.guest-add-btn {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 16px;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 14px 16px;
   border-radius: 16px;
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px dashed rgba(255, 255, 255, 0.18);
+  border: 2px dashed rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: rgba(252, 232, 195, 0.75);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 
-  &__label {
-    font-family: var(--font-display);
-    font-size: 1rem;
-    letter-spacing: 1px;
-    color: var(--sand-mid);
-    text-transform: uppercase;
-    margin: 0;
+  &:active {
+    transform: scale(0.97);
   }
 
-  &__form {
-    display: flex;
-    gap: 8px;
-    width: 100%;
+  @media (hover: hover) {
+    &:hover {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: var(--sand-light);
+    }
   }
+}
 
-  &__input {
-    flex: 1;
-    padding: 10px 14px;
-    border-radius: 12px;
-    border: 2px solid var(--glass-border);
-    background: rgba(255, 255, 255, 0.08);
-    color: var(--white);
+/* ---- Modal input / form ---- */
+.modal--info {
+  max-height: 85vh;
+  overflow-y: auto;
+  text-align: left;
+  gap: 8px;
+}
+
+.info-section {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  &__title {
     font-family: var(--font-body);
-    font-size: 0.95rem;
-    font-weight: 600;
-    outline: none;
-    transition: border-color 0.2s ease;
-
-    &::placeholder {
-      color: rgba(252, 232, 195, 0.4);
-    }
-
-    &:focus {
-      border-color: rgba(40, 210, 100, 0.55);
-    }
-  }
-
-  &__btn {
-    padding: 10px 20px;
-    border-radius: 12px;
-    border: 2px solid rgba(40, 210, 100, 0.5);
-    background: rgba(40, 200, 100, 0.25);
-    color: #a8ffc8;
-    font-family: var(--font-display);
     font-size: 0.9rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    -webkit-tap-highlight-color: transparent;
-    white-space: nowrap;
+    color: var(--sand-light);
+    margin: 0 0 6px;
+  }
 
-    &:disabled {
-      opacity: 0.35;
-      cursor: not-allowed;
-    }
+  &__text {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: rgba(252, 232, 195, 0.8);
+    line-height: 1.5;
+    margin: 0 0 4px;
 
-    &:not(:disabled):active {
-      transform: scale(0.95);
+    &:last-child {
+      margin-bottom: 0;
     }
+  }
+}
+
+.modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.modal__input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 600;
+  }
+
+  &:focus {
+    border-color: rgba(40, 210, 100, 0.6);
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+.modal__btn--confirm {
+  background: rgba(40, 200, 100, 0.3);
+  border-color: rgba(40, 210, 100, 0.55);
+  color: #a8ffc8;
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
   }
 }
 

@@ -3,7 +3,14 @@
 
   <main class="container">
     <!-- Header -->
-    <header class="header">      
+    <header class="header">
+      <button class="header__help" (click)="showInfoModal.set(true)" aria-label="Como funciona">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+      </button>
       <span class="header__icon">🏐</span><span style="font-size: 1.2rem" class="header__question">#Sextou do Vôlei</span>
       <h4 class="header__brand">Quem vai jogar?</h4>
       <p class="header__location header__location--link" (click)="openMaps()">
@@ -177,31 +184,49 @@
                 }
               </span>
               <div class="player-actions" role="group">
-                <button
-                  class="action-btn action-btn--yes"
-                  [class.action-btn--active]="player.status === 'confirmed'"
-                  [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
-                  [disabled]="isFull() && player.status !== 'confirmed'"
-                  (click)="setStatus(player.id, 'confirmed')"
-                  [attr.aria-pressed]="player.status === 'confirmed'"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  <span>Vou!</span>
-                </button>
-                <button
-                  class="action-btn action-btn--no"
-                  [class.action-btn--active]="player.status === 'declined'"
-                  (click)="setStatus(player.id, 'declined')"
-                  [attr.aria-pressed]="player.status === 'declined'"
-                >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                  </svg>
-                  <span>Não</span>
-                </button>
+                @if (player.status !== 'declined') {
+                  @if (canInteract(player)) {
+                    <button
+                      class="action-btn action-btn--yes"
+                      [class.action-btn--active]="player.status === 'confirmed'"
+                      [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
+                      [disabled]="isFull() && player.status !== 'confirmed'"
+                      (click)="setStatus(player.id, 'confirmed')"
+                      [attr.aria-pressed]="player.status === 'confirmed'"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      <span>Vou!</span>
+                    </button>
+                  } @else {
+                    <button
+                      class="action-btn action-btn--yes action-btn--wait"
+                      (click)="showWaitAlert(player.id)"
+                      aria-label="Aguarde para confirmar"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                      </svg>
+                    </button>
+                  }
+                }
+
+                @if (player.status !== 'confirmed') {
+                  <button
+                    class="action-btn action-btn--no"
+                    [class.action-btn--active]="player.status === 'declined'"
+                    (click)="setStatus(player.id, 'declined')"
+                    [attr.aria-pressed]="player.status === 'declined'"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                    <span>Não</span>
+                  </button>
+                }
                 <button
                   class="action-btn action-btn--remove"
                   (click)="removeGuest(player.id)"
@@ -221,28 +246,9 @@
       }
 
       <!-- Adicionar convidado -->
-      <form class="guest-add__form" (ngSubmit)="addGuest()">
-          <input
-            class="guest-add__input"
-            type="text"
-            [(ngModel)]="guestName"
-            name="guestName"
-            placeholder="Digite seu nome"
-            maxlength="30"
-            autocomplete="off"
-          />
-          <button
-            class="guest-add__btn"
-            type="submit"
-            [disabled]="!guestName.trim() || addingGuest()"
-          >
-            @if (addingGuest()) {
-              …
-            } @else {
-              Entrar
-            }
-          </button>
-        </form>
+      <button class="guest-add-btn" (click)="openGuestModal()">
+        ➕ Outro jogador
+      </button>
     }
 
     <!-- Footer -->
@@ -290,6 +296,78 @@
       </p>
       <p class="modal__highlight">Já pode dizer "Não" se não puder jogar.</p>
       <button class="modal__btn" (click)="closeWaitModal()">Entendi!</button>
+    </div>
+  </div>
+}
+
+<!-- Modal Outro Jogador -->
+@if (showGuestModal()) {
+  <div class="modal-backdrop" (click)="closeGuestModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <span class="modal__emoji">🎽</span>
+      <h3 class="modal__title">Novo jogador</h3>
+      <p class="modal__text">Digite o nome para entrar no jogo:</p>
+      <form class="modal__form" (ngSubmit)="addGuest()">
+        <input
+          class="modal__input"
+          type="text"
+          [(ngModel)]="guestName"
+          name="guestName"
+          placeholder="Seu nome"
+          maxlength="30"
+          autocomplete="off"
+        />
+        <button
+          class="modal__btn modal__btn--confirm"
+          type="submit"
+          [disabled]="!guestName.trim() || addingGuest()"
+        >
+          OK
+        </button>
+      </form>
+    </div>
+  </div>
+}
+
+<!-- Modal Como Funciona -->
+@if (showInfoModal()) {
+  <div class="modal-backdrop" (click)="showInfoModal.set(false)">
+    <div class="modal modal--info" (click)="$event.stopPropagation()">
+      <span class="modal__emoji">🏐</span>
+      <h3 class="modal__title">Como funciona</h3>
+
+      <div class="info-section">
+        <h4 class="info-section__title">📋 Prioridade</h4>
+        <p class="info-section__text">
+          Os jogadores têm uma ordem baseada em <strong>antiguidade no grupo</strong> e <strong>frequência nos jogos</strong>.
+        </p>
+        <p class="info-section__text">
+          Os primeiros <strong>{{ totalPlayers() }}</strong> da lista podem confirmar na hora. Os demais entram na <strong>fila de espera</strong> — a cada 12h, mais uma vaga abre.
+        </p>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section__title">⚡ A fila anda rápido</h4>
+        <p class="info-section__text">
+          Cada jogador prioritário que diz <strong>"Não"</strong> libera uma vaga imediatamente para o próximo da fila.
+        </p>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section__title">🔄 Mudou de ideia?</h4>
+        <p class="info-section__text">
+          Clique no seu botão ativo para voltar ao estado neutro. Se disse <strong>"Não"</strong> e ninguém entrou na sua vaga, você recupera a prioridade. Se alguém já confirmou, você vai para a fila.
+        </p>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section__title">🎽 Outro jogador</h4>
+        <p class="info-section__text">
+          Quer trazer um amigo? Use o botão no final da página. Ele entra como último na fila e segue as mesmas regras.
+        </p>
+      </div>
+
+      <button class="modal__btn" (click)="showInfoModal.set(false)">Entendi! 🏖️</button>
     </div>
   </div>
 }

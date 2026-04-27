@@ -58,8 +58,11 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   readonly isFull = computed(() => this.confirmedCount() >= this.totalPlayers());
 
   canInteract(player: Player): boolean {
-    if (player.guest || player.status === 'confirmed') return true;
+    if (player.status === 'confirmed') return true;
     const maxElig = this.maxEligibleId();
+
+    // Convidados seguem a fila como os demais
+    if (player.guest) return player.id <= maxElig;
 
     // Se tem effectiveId (penalidade por ter declinado), verifica se ainda vale
     if (player.effectiveId && player.effectiveId > player.id) {
@@ -153,6 +156,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   readonly showModal = signal(false);
   readonly showWaitModal = signal(false);
+  readonly showInfoModal = signal(false);
   readonly waitPlayerId = signal(0);
 
   /** Posição na fila de espera (0 = já pode confirmar) */
@@ -212,6 +216,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   // ---- Jogadores convidados ----
   guestName = '';
   readonly addingGuest = signal(false);
+  readonly showGuestModal = signal(false);
 
   readonly regularPlayers = computed(() =>
     this.players().filter(p => !p.guest)
@@ -221,6 +226,15 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     this.players().filter(p => p.guest)
   );
 
+  openGuestModal(): void {
+    this.guestName = '';
+    this.showGuestModal.set(true);
+  }
+
+  closeGuestModal(): void {
+    this.showGuestModal.set(false);
+  }
+
   async addGuest(): Promise<void> {
     const name = this.guestName.trim();
     if (!name || this.addingGuest()) return;
@@ -228,6 +242,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     try {
       await this.gameService.addGuestPlayer(this.gameId, name);
       this.guestName = '';
+      this.showGuestModal.set(false);
     } finally {
       this.addingGuest.set(false);
     }
