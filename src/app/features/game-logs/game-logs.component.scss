@@ -138,21 +138,23 @@
     position: sticky;
     top: 0;
     z-index: 2;
-    padding: 8px 16px;
-    border-radius: 12px;
-    background: rgba(14, 77, 110, 0.85);
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(14, 77, 110, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
+    border: 1px solid rgba(252, 232, 195, 0.12);
+    width: fit-content;
+    margin: 0 auto;
   }
 
   &__date {
     font-family: var(--font-body);
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--sand-mid);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sky-light);
     text-transform: capitalize;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
   }
 }
 
@@ -259,5 +261,27 @@
     font-family: var(--font-body);
     font-size: 0.72rem;
     color: rgba(252, 232, 195, 0.45);
+  }
+
+  &__row-device {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding-top: 4px;
+    border-top: 1px solid rgba(252, 232, 195, 0.08);
+  }
+
+  &__device {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    color: rgba(252, 232, 195, 0.4);
+  }
+
+  &__ip {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    color: rgba(252, 232, 195, 0.3);
+    font-variant-numeric: tabular-nums;
   }
 }

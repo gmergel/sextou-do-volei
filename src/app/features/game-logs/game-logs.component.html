@@ -54,6 +54,12 @@
                     <span class="timeline__time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
                     <span class="timeline__transition">{{ statusLabel(log.previousStatus) }} → {{ statusLabel(log.newStatus) }}</span>
                   </div>
+                  <div class="timeline__row-device">
+                    <span class="timeline__device">📱 {{ parseDevice(log.userAgent) }}</span>
+                    @if (log.ip) {
+                      <span class="timeline__ip">{{ log.ip }}</span>
+                    }
+                  </div>
                 </div>
               </div>
             }

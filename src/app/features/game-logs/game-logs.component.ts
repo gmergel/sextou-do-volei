@@ -8,7 +8,7 @@ import { CheckinLog, Game } from '../../models/game.model';
 const STATUS_LABEL: Record<string, string> = {
   confirmed: 'Confirmou',
   declined: 'Recusou',
-  pending: 'Voltou ao pendente',
+  pending: 'Pendente',
 };
 
 @Component({
@@ -37,10 +37,9 @@ export class GameLogsComponent implements OnInit, OnDestroy {
     for (const log of all) {
       const d = new Date(log.timestamp);
       const dateStr = d.toLocaleDateString('pt-BR', {
-        weekday: 'long',
+        weekday: 'short',
         day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
+        month: 'short',
       });
 
       if (dateStr !== currentDate) {
@@ -63,6 +62,28 @@ export class GameLogsComponent implements OnInit, OnDestroy {
       case 'declined': return '❌';
       default: return '🔄';
     }
+  }
+
+  parseDevice(ua: string): string {
+    if (!ua) return '—';
+    // Extract OS
+    let os = 'Desconhecido';
+    if (/iPhone/.test(ua)) os = 'iPhone';
+    else if (/iPad/.test(ua)) os = 'iPad';
+    else if (/Android/.test(ua)) {
+      const model = ua.match(/Android[^;]*;\s*([^)]+)/);
+      os = model ? model[1].trim() : 'Android';
+    }
+    else if (/Windows/.test(ua)) os = 'Windows';
+    else if (/Mac OS/.test(ua)) os = 'Mac';
+    else if (/Linux/.test(ua)) os = 'Linux';
+    // Extract browser
+    let browser = '';
+    if (/Edg\//.test(ua)) browser = 'Edge';
+    else if (/Chrome\//.test(ua) && !/Chromium/.test(ua)) browser = 'Chrome';
+    else if (/Safari\//.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+    else if (/Firefox\//.test(ua)) browser = 'Firefox';
+    return browser ? `${os} · ${browser}` : os;
   }
 
   ngOnInit(): void {
