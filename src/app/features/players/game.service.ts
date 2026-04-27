@@ -4,11 +4,13 @@ import {
   doc,
   setDoc,
   getDoc,
+  getDocs,
   collection,
   collectionData,
   writeBatch,
   updateDoc,
   addDoc,
+  deleteDoc,
   orderBy,
   query,
 } from '@angular/fire/firestore';
@@ -76,17 +78,22 @@ export class GameService {
   async updateStatus(
     gameId: string,
     player: Player,
-    newStatus: PlayerStatus
+    newStatus: PlayerStatus,
+    effectiveId?: number,
   ): Promise<void> {
     const now = new Date().toISOString();
 
     const playerDoc = doc(
       this.firestore, 'games', gameId, 'players', String(player.id)
     );
-    await updateDoc(playerDoc, {
+    const update: Record<string, string | number | null> = {
       status: newStatus,
       lastChange: newStatus === 'pending' ? null : now,
-    });
+    };
+    if (effectiveId !== undefined) {
+      update['effectiveId'] = effectiveId;
+    }
+    await updateDoc(playerDoc, update);
 
     const checkinLog: CheckinLog = {
       playerId: player.id,
@@ -116,5 +123,31 @@ export class GameService {
       batch.set(playerDoc, data);
     }
     await batch.commit();
+  }
+
+  async addGuestPlayer(gameId: string, name: string): Promise<void> {
+    const playersCol = collection(this.firestore, 'games', gameId, 'players');
+    const snap = await getDocs(playersCol);
+    const maxId = snap.docs.reduce((max, d) => {
+      const id = (d.data() as PlayerDoc).id;
+      return id > max ? id : max;
+    }, 0);
+    const newId = Math.max(100, maxId + 1);
+    const trimmed = name.trim();
+    const data: PlayerDoc = {
+      id: newId,
+      name: trimmed,
+      initial: trimmed.charAt(0).toUpperCase(),
+      status: 'confirmed',
+      lastChange: new Date().toISOString(),
+      guest: true,
+    };
+    const playerDoc = doc(this.firestore, 'games', gameId, 'players', String(newId));
+    await setDoc(playerDoc, data);
+  }
+
+  async removeGuestPlayer(gameId: string, playerId: number): Promise<void> {
+    const playerDoc = doc(this.firestore, 'games', gameId, 'players', String(playerId));
+    await deleteDoc(playerDoc);
   }
 }

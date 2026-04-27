@@ -15,6 +15,8 @@ export interface Player {
   initial: string;
   status: PlayerStatus;
   lastChange: Date | null;
+  guest?: boolean;
+  effectiveId?: number;
 }
 
 export interface PlayerDoc {
@@ -23,6 +25,8 @@ export interface PlayerDoc {
   initial: string;
   status: PlayerStatus;
   lastChange: string | null;
+  guest?: boolean;
+  effectiveId?: number;
 }
 
 export interface CheckinLog {

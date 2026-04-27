@@ -6,7 +6,7 @@
     <header class="header">      
       <span class="header__icon">🏐</span><span style="font-size: 1.2rem" class="header__question">#Sextou do Vôlei</span>
       <h4 class="header__brand">Quem vai jogar?</h4>
-      <p class="header__location">
+      <p class="header__location header__location--link" (click)="openMaps()">
         <svg class="header__pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
           <circle cx="12" cy="10" r="3"></circle>
@@ -92,7 +92,7 @@
       </ul>
     } @else {
       <ul class="player-list" role="list" id="player-list">
-      @for (player of players(); track player.id) {
+      @for (player of regularPlayers(); track player.id) {
         <li class="player-list__item"
           [class.player-list__item--confirmed]="player.status === 'confirmed'"
           [class.player-list__item--declined]="player.status === 'declined'"
@@ -109,51 +109,140 @@
 
           <!-- Ações -->
           <div class="player-actions" role="group" [attr.aria-label]="'Resposta de ' + player.name">
-            @if (canInteract(player)) {
-              <button
-                class="action-btn action-btn--yes"
-                [class.action-btn--active]="player.status === 'confirmed'"
-                [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
-                [disabled]="isFull() && player.status !== 'confirmed'"
-                (click)="setStatus(player.id, 'confirmed')"
-                [attr.aria-pressed]="player.status === 'confirmed'"
-                [attr.aria-label]="isFull() && player.status !== 'confirmed' ? 'Elenco completo' : 'Vou jogar'"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Vou!</span>
-              </button>
-            } @else {
-              <button
-                class="action-btn action-btn--yes action-btn--wait"
-                (click)="showWaitAlert(player.id)"
-                aria-label="Aguarde para confirmar"
-              >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <polyline points="12 6 12 12 16 14"></polyline>
-                </svg>
-              </button>
+            @if (player.status !== 'declined') {
+              @if (canInteract(player)) {
+                <button
+                  class="action-btn action-btn--yes"
+                  [class.action-btn--active]="player.status === 'confirmed'"
+                  [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
+                  [disabled]="isFull() && player.status !== 'confirmed'"
+                  (click)="setStatus(player.id, 'confirmed')"
+                  [attr.aria-pressed]="player.status === 'confirmed'"
+                  [attr.aria-label]="isFull() && player.status !== 'confirmed' ? 'Elenco completo' : 'Vou jogar'"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Vou!</span>
+                </button>
+              } @else {
+                <button
+                  class="action-btn action-btn--yes action-btn--wait"
+                  (click)="showWaitAlert(player.effectiveId ?? player.id)"
+                  aria-label="Aguarde para confirmar"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                </button>
+              }
             }
 
-            <button
-              class="action-btn action-btn--no"
-              [class.action-btn--active]="player.status === 'declined'"
-              (click)="setStatus(player.id, 'declined')"
-              [attr.aria-pressed]="player.status === 'declined'"
-              aria-label="Não posso"
-            >
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-              <span>Não</span>
-            </button>
+            @if (player.status !== 'confirmed') {
+              <button
+                class="action-btn action-btn--no"
+                [class.action-btn--active]="player.status === 'declined'"
+                (click)="setStatus(player.id, 'declined')"
+                [attr.aria-pressed]="player.status === 'declined'"
+                aria-label="Não posso"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+                <span>Não</span>
+              </button>
+            }
           </div>
         </li>
       }
     </ul>
+
+      <!-- Jogadores convidados -->
+      @if (guestPlayers().length) {
+        <p class="section-label">🎽 Convidados do jogo</p>
+        <ul class="player-list" role="list">
+          @for (player of guestPlayers(); track player.id) {
+            <li class="player-list__item player-list__item--guest"
+              [class.player-list__item--confirmed]="player.status === 'confirmed'"
+              [class.player-list__item--declined]="player.status === 'declined'"
+            >
+              <span class="player-info">
+                <span class="player-info__name">{{ player.name }}</span>
+                @if (player.lastChange) {
+                  <span class="player-info__timestamp">
+                    {{ player.lastChange | date:'dd/MM HH:mm:ss' }}
+                  </span>
+                }
+              </span>
+              <div class="player-actions" role="group">
+                <button
+                  class="action-btn action-btn--yes"
+                  [class.action-btn--active]="player.status === 'confirmed'"
+                  [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
+                  [disabled]="isFull() && player.status !== 'confirmed'"
+                  (click)="setStatus(player.id, 'confirmed')"
+                  [attr.aria-pressed]="player.status === 'confirmed'"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Vou!</span>
+                </button>
+                <button
+                  class="action-btn action-btn--no"
+                  [class.action-btn--active]="player.status === 'declined'"
+                  (click)="setStatus(player.id, 'declined')"
+                  [attr.aria-pressed]="player.status === 'declined'"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                  <span>Não</span>
+                </button>
+                <button
+                  class="action-btn action-btn--remove"
+                  (click)="removeGuest(player.id)"
+                  aria-label="Remover convidado"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+                    <line x1="10" y1="11" x2="10" y2="17"></line>
+                    <line x1="14" y1="11" x2="14" y2="17"></line>
+                  </svg>
+                </button>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+
+      <!-- Adicionar convidado -->
+      <form class="guest-add__form" (ngSubmit)="addGuest()">
+          <input
+            class="guest-add__input"
+            type="text"
+            [(ngModel)]="guestName"
+            name="guestName"
+            placeholder="Digite seu nome"
+            maxlength="30"
+            autocomplete="off"
+          />
+          <button
+            class="guest-add__btn"
+            type="submit"
+            [disabled]="!guestName.trim() || addingGuest()"
+          >
+            @if (addingGuest()) {
+              …
+            } @else {
+              Entrar
+            }
+          </button>
+        </form>
     }
 
     <!-- Footer -->
@@ -187,9 +276,9 @@
     <div class="modal" (click)="$event.stopPropagation()">
       <span class="modal__emoji">⏳</span>
       <h3 class="modal__title">Calma, craque!</h3>
-      @if (waitSeconds() > 0) {
+      @if (waitQueuePosition()) {
         <p class="modal__text">
-          Sua confirmação libera em <strong>{{ waitSeconds() }}s</strong>.
+          Você é o <strong>{{ waitQueuePosition() }}º</strong> na fila de espera.
         </p>
       } @else {
         <p class="modal__text">
@@ -197,7 +286,7 @@
         </p>
       }
       <p class="modal__text">
-        Se algum jogador com prioridade disser que <strong>não vai</strong>, sua vaga abre antes!
+        Se algum jogador com prioridade disser que <strong>não vai</strong>, você sobe na fila!
       </p>
       <p class="modal__highlight">Já pode dizer "Não" se não puder jogar.</p>
       <button class="modal__btn" (click)="closeWaitModal()">Entendi!</button>
