@@ -64,6 +64,19 @@ export class GameLogsComponent implements OnInit, OnDestroy {
     }
   }
 
+  isEvent(log: CheckinLog): boolean {
+    return !!log.type && log.type !== 'status_change';
+  }
+
+  eventIcon(log: CheckinLog): string {
+    switch (log.type) {
+      case 'slot_opened': return '🔓';
+      case 'game_full': return '🔒';
+      case 'game_reopened': return '🔓';
+      default: return '⚙️';
+    }
+  }
+
   parseDevice(ua: string): string {
     if (!ua) return '—';
     // Extract OS

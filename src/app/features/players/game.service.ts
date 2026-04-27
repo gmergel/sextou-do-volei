@@ -21,6 +21,7 @@ import {
   PlayerDoc,
   PlayerStatus,
   CheckinLog,
+  LogType,
   DEFAULT_PLAYERS,
 } from '../../models/game.model';
 import { DeviceInfoService } from './device-info.service';
@@ -96,6 +97,7 @@ export class GameService {
     await updateDoc(playerDoc, update);
 
     const checkinLog: CheckinLog = {
+      type: 'status_change',
       playerId: player.id,
       playerName: player.name,
       previousStatus: player.status,
@@ -103,6 +105,7 @@ export class GameService {
       timestamp: now,
       ip: await this.deviceInfo.getIp(),
       userAgent: this.deviceInfo.getUserAgent(),
+      deviceModel: await this.deviceInfo.getDeviceModel(),
       screenResolution: this.deviceInfo.getScreenResolution(),
       language: this.deviceInfo.getLanguage(),
     };
@@ -149,6 +152,24 @@ export class GameService {
   async removeGuestPlayer(gameId: string, playerId: number): Promise<void> {
     const playerDoc = doc(this.firestore, 'games', gameId, 'players', String(playerId));
     await deleteDoc(playerDoc);
+  }
+
+  async addEventLog(gameId: string, type: LogType, detail: string): Promise<void> {
+    const checkinsCol = collection(this.firestore, 'games', gameId, 'checkins');
+    const log: CheckinLog = {
+      type,
+      playerId: 0,
+      playerName: 'Sistema',
+      previousStatus: 'pending',
+      newStatus: 'pending',
+      timestamp: new Date().toISOString(),
+      ip: null,
+      userAgent: '',
+      screenResolution: '',
+      language: '',
+      detail,
+    };
+    await addDoc(checkinsCol, log);
   }
 
   checkins$(gameId: string): Observable<CheckinLog[]> {

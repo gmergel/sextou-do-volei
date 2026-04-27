@@ -40,28 +40,51 @@
 
           <div class="timeline">
             @for (log of group.entries; track $index) {
-              <div class="timeline__item" [class.timeline__item--confirmed]="log.newStatus === 'confirmed'"
-                   [class.timeline__item--declined]="log.newStatus === 'declined'"
-                   [class.timeline__item--pending]="log.newStatus === 'pending'">
-                <div class="timeline__dot"></div>
-                <div class="timeline__card">
-                  <div class="timeline__row-main">
-                    <span class="timeline__icon">{{ statusIcon(log.newStatus) }}</span>
-                    <span class="timeline__name">{{ log.playerName }}</span>
-                    <span class="timeline__action">{{ statusLabel(log.newStatus) }}</span>
-                  </div>
-                  <div class="timeline__row-meta">
+              @if (isEvent(log)) {
+                <!-- System event -->
+                <div class="timeline__item timeline__item--event"
+                     [class.timeline__item--full]="log.type === 'game_full'"
+                     [class.timeline__item--opened]="log.type === 'slot_opened' || log.type === 'game_reopened'">
+                  <div class="timeline__dot"></div>
+                  <div class="timeline__card timeline__card--event">
+                    <div class="timeline__row-main">
+                      <span class="timeline__icon">{{ eventIcon(log) }}</span>
+                      <span class="timeline__detail">{{ log.detail }}</span>
+                    </div>
                     <span class="timeline__time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
-                    <span class="timeline__transition">{{ statusLabel(log.previousStatus) }} → {{ statusLabel(log.newStatus) }}</span>
                   </div>
-                  <div class="timeline__row-device">
-                    <span class="timeline__device">📱 {{ parseDevice(log.userAgent) }}</span>
-                    @if (log.ip) {
-                      <span class="timeline__ip">{{ log.ip }}</span>
+                </div>
+              } @else {
+                <!-- Player action -->
+                <div class="timeline__item" [class.timeline__item--confirmed]="log.newStatus === 'confirmed'"
+                     [class.timeline__item--declined]="log.newStatus === 'declined'"
+                     [class.timeline__item--pending]="log.newStatus === 'pending'">
+                  <div class="timeline__dot"></div>
+                  <div class="timeline__card">
+                    <div class="timeline__row-main">
+                      <span class="timeline__icon">{{ statusIcon(log.newStatus) }}</span>
+                      <span class="timeline__name">{{ log.playerName }}</span>
+                      <span class="timeline__action">{{ statusLabel(log.newStatus) }}</span>
+                    </div>
+                    <div class="timeline__row-meta">
+                      <span class="timeline__time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
+                      <span class="timeline__transition">{{ statusLabel(log.previousStatus) }} → {{ statusLabel(log.newStatus) }}</span>
+                    </div>
+                    <div class="timeline__row-device">
+                      <span class="timeline__device">📱 {{ log.deviceModel || parseDevice(log.userAgent) }}</span>
+                      @if (log.ip) {
+                        <span class="timeline__ip">{{ log.ip }}</span>
+                      }
+                    </div>
+                    @if (log.deviceModel && parseDevice(log.userAgent) !== '—') {
+                      <div class="timeline__row-extra">
+                        <span class="timeline__browser">🌐 {{ parseDevice(log.userAgent) }}</span>
+                        <span class="timeline__screen">{{ log.screenResolution }}</span>
+                      </div>
                     }
                   </div>
                 </div>
-              </div>
+              }
             }
           </div>
         </section>

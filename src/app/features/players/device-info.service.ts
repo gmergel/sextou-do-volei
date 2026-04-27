@@ -27,4 +27,21 @@ export class DeviceInfoService {
   getLanguage(): string {
     return navigator.language;
   }
+
+  async getDeviceModel(): Promise<string> {
+    try {
+      const uaData = (navigator as any).userAgentData;
+      if (uaData?.getHighEntropyValues) {
+        const hints = await uaData.getHighEntropyValues([
+          'model', 'platform', 'platformVersion',
+        ]);
+        const parts: string[] = [];
+        if (hints.platform) parts.push(hints.platform);
+        if (hints.platformVersion) parts.push(hints.platformVersion);
+        if (hints.model) parts.push(hints.model);
+        if (parts.length) return parts.join(' / ');
+      }
+    } catch { /* not supported */ }
+    return '';
+  }
 }

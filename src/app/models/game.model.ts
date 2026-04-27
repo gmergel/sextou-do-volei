@@ -29,7 +29,10 @@ export interface PlayerDoc {
   effectiveId?: number;
 }
 
+export type LogType = 'status_change' | 'slot_opened' | 'game_full' | 'game_reopened';
+
 export interface CheckinLog {
+  type?: LogType;
   playerId: number;
   playerName: string;
   previousStatus: PlayerStatus;
@@ -37,8 +40,10 @@ export interface CheckinLog {
   timestamp: string;
   ip: string | null;
   userAgent: string;
+  deviceModel?: string;
   screenResolution: string;
   language: string;
+  detail?: string;
 }
 
 export const DEFAULT_PLAYERS: Player[] = [

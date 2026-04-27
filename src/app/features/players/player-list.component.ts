@@ -123,7 +123,31 @@ export class PlayerListComponent implements OnInit, OnDestroy {
       // Se ninguém confirmou, volta sem penalidade
     }
 
-    this.gameService.updateStatus(this.gameId, player, newStatus, effectiveId);
+    this.gameService.updateStatus(this.gameId, player, newStatus, effectiveId).then(() => {
+      const confirmed = this.confirmedCount();
+      const total = this.totalPlayers();
+
+      // Vaga liberada: jogador saiu de confirmed (desconfirmou) ou declinou
+      if (player.status === 'confirmed' && newStatus !== 'confirmed') {
+        this.gameService.addEventLog(this.gameId, 'slot_opened',
+          `${player.name} liberou uma vaga (${confirmed}/${total})`);
+      } else if (newStatus === 'declined' && player.status !== 'confirmed') {
+        this.gameService.addEventLog(this.gameId, 'slot_opened',
+          `${player.name} recusou — vaga liberada na fila (${confirmed}/${total})`);
+      }
+
+      // Jogo lotou
+      if (newStatus === 'confirmed' && confirmed === total) {
+        this.gameService.addEventLog(this.gameId, 'game_full',
+          `Jogo lotado! (${total}/${total})`);
+      }
+
+      // Jogo reabriu (saiu de lotado)
+      if (player.status === 'confirmed' && newStatus !== 'confirmed' && confirmed === total - 1) {
+        this.gameService.addEventLog(this.gameId, 'game_reopened',
+          `Vaga reaberta (${confirmed}/${total})`);
+      }
+    });
   }
 
   /** Calcula maxEligibleId simulando que um jogador NÃO tivesse declinado */

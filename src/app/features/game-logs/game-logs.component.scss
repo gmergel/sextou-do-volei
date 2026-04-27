@@ -292,4 +292,70 @@
     color: rgba(252, 232, 195, 0.3);
     font-variant-numeric: tabular-nums;
   }
+
+  &__row-extra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__browser {
+    font-family: var(--font-body);
+    font-size: 0.7rem;
+    color: rgba(252, 232, 195, 0.4);
+  }
+
+  &__screen {
+    font-family: var(--font-body);
+    font-size: 0.68rem;
+    color: rgba(252, 232, 195, 0.25);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Event cards (system events) */
+  &__item--event {
+    padding: 0 0 12px 20px;
+  }
+
+  &__item--full &__dot {
+    border-color: var(--sunset-gold);
+    background: rgba(245, 166, 35, 0.3);
+    box-shadow: 0 0 8px rgba(245, 166, 35, 0.4);
+  }
+
+  &__item--opened &__dot {
+    border-color: var(--sky-mid);
+    background: rgba(63, 175, 208, 0.3);
+    box-shadow: 0 0 8px rgba(63, 175, 208, 0.3);
+  }
+
+  &__card--event {
+    padding: 8px 12px;
+    border-style: dashed;
+    border-color: rgba(252, 232, 195, 0.15);
+    background: rgba(252, 232, 195, 0.05);
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    .timeline__row-main {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__detail {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-style: italic;
+    color: rgba(252, 232, 195, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
 }
