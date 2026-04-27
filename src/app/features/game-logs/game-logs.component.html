@@ -1,0 +1,65 @@
+<div class="beach-bg">
+  <div class="overlay"></div>
+
+  <div class="container">
+    <!-- Nav -->
+    <nav class="top-nav">
+      <a class="top-nav__link" [routerLink]="['/jogo', gameId()]">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Voltar ao jogo
+      </a>
+    </nav>
+
+    <!-- Header -->
+    <header class="header">
+      <span class="header__icon">📋</span>
+      <h1 class="header__title">Histórico</h1>
+      @if (game(); as g) {
+        <p class="header__sub">{{ g.date }} às {{ g.time }}</p>
+      }
+    </header>
+
+    @if (loading()) {
+      <div class="loading">
+        <span class="loading__spinner">🏐</span>
+        <span class="loading__text">Carregando logs…</span>
+      </div>
+    } @else if (logs().length === 0) {
+      <div class="empty">
+        <span class="empty__icon">📭</span>
+        <p class="empty__text">Nenhuma movimentação ainda.</p>
+      </div>
+    } @else {
+      @for (group of groupedLogs(); track group.date) {
+        <section class="day-group">
+          <div class="day-group__header">
+            <span class="day-group__date">{{ group.date }}</span>
+          </div>
+
+          <div class="timeline">
+            @for (log of group.entries; track $index) {
+              <div class="timeline__item" [class.timeline__item--confirmed]="log.newStatus === 'confirmed'"
+                   [class.timeline__item--declined]="log.newStatus === 'declined'"
+                   [class.timeline__item--pending]="log.newStatus === 'pending'">
+                <div class="timeline__dot"></div>
+                <div class="timeline__card">
+                  <div class="timeline__row-main">
+                    <span class="timeline__icon">{{ statusIcon(log.newStatus) }}</span>
+                    <span class="timeline__name">{{ log.playerName }}</span>
+                    <span class="timeline__action">{{ statusLabel(log.newStatus) }}</span>
+                  </div>
+                  <div class="timeline__row-meta">
+                    <span class="timeline__time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
+                    <span class="timeline__transition">{{ statusLabel(log.previousStatus) }} → {{ statusLabel(log.newStatus) }}</span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+    }
+  </div>
+</div>

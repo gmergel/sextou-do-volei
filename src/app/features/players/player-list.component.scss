@@ -164,11 +164,17 @@
   100% { transform: translateY(0) scaleX(1) scaleY(1); }
 }
 
-/* ---- Botão ajuda (?) ---- */
-.header__help {
+/* ---- Botões header (? e logs) ---- */
+.header__actions {
   position: absolute;
   top: 16px;
   right: 0;
+  display: flex;
+  gap: 8px;
+}
+
+.header__help,
+.header__logs {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -184,6 +190,7 @@
   padding: 0;
   transition: all 0.2s ease;
   -webkit-tap-highlight-color: transparent;
+  text-decoration: none;
 
   svg {
     width: 20px;

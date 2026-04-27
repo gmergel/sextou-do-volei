@@ -150,4 +150,10 @@ export class GameService {
     const playerDoc = doc(this.firestore, 'games', gameId, 'players', String(playerId));
     await deleteDoc(playerDoc);
   }
+
+  checkins$(gameId: string): Observable<CheckinLog[]> {
+    const checkinsCol = collection(this.firestore, 'games', gameId, 'checkins');
+    const q = query(checkinsCol, orderBy('timestamp', 'desc'));
+    return collectionData(q) as Observable<CheckinLog[]>;
+  }
 }

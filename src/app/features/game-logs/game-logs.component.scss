@@ -1,0 +1,263 @@
+/* ============================================
+   Beach Volleyball Theme - Game Logs
+   ============================================ */
+
+:host {
+  display: block;
+}
+
+.beach-bg {
+  position: relative;
+  min-height: 100dvh;
+  background:
+    url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80')
+    center center / cover no-repeat fixed;
+  background-color: var(--ocean-deep);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 77, 110, 0.82) 0%,
+    rgba(27, 60, 80, 0.65) 40%,
+    rgba(232, 117, 44, 0.52) 75%,
+    rgba(199, 77, 60, 0.48) 100%
+  );
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---- Nav ---- */
+.top-nav {
+  &__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--sand-light);
+    text-decoration: none;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+
+    svg { flex-shrink: 0; }
+
+    &:hover {
+      background: rgba(40, 200, 100, 0.15);
+      border-color: rgba(40, 210, 100, 0.4);
+      color: #a8ffc8;
+    }
+  }
+}
+
+/* ---- Header ---- */
+.header {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  &__icon {
+    font-size: 2rem;
+  }
+
+  &__title {
+    font-family: var(--font-display);
+    font-size: 2.2rem;
+    letter-spacing: 2px;
+    color: var(--white);
+    text-shadow: 2px 3px 8px var(--shadow);
+    line-height: 1;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  &__sub {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    color: rgba(252, 232, 195, 0.7);
+    margin: 0;
+  }
+}
+
+/* ---- Loading / Empty ---- */
+.loading, .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 40px 0;
+}
+
+.loading__spinner {
+  font-size: 2rem;
+  animation: spin 1.2s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loading__text, .empty__text {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: rgba(252, 232, 195, 0.7);
+}
+
+.empty__icon {
+  font-size: 2rem;
+}
+
+/* ---- Day Groups ---- */
+.day-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(14, 77, 110, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+
+  &__date {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--sand-mid);
+    text-transform: capitalize;
+    letter-spacing: 0.3px;
+  }
+}
+
+/* ---- Timeline ---- */
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding-left: 16px;
+  border-left: 2px solid rgba(252, 232, 195, 0.15);
+
+  &__item {
+    position: relative;
+    padding: 0 0 16px 20px;
+
+    &:last-child {
+      padding-bottom: 0;
+    }
+  }
+
+  &__dot {
+    position: absolute;
+    left: -8px;
+    top: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid rgba(252, 232, 195, 0.3);
+    background: var(--ocean-deep);
+
+    .timeline__item--confirmed & {
+      border-color: var(--yes-base);
+      background: var(--yes-deep);
+      box-shadow: 0 0 8px rgba(58, 176, 106, 0.4);
+    }
+
+    .timeline__item--declined & {
+      border-color: var(--no-base);
+      background: var(--no-deep);
+      box-shadow: 0 0 8px rgba(199, 77, 60, 0.4);
+    }
+
+    .timeline__item--pending & {
+      border-color: var(--sand-mid);
+      background: rgba(226, 185, 111, 0.3);
+    }
+  }
+
+  &__card {
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__row-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  &__icon {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+
+  &__name {
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--sand-light);
+    text-transform: uppercase;
+  }
+
+  &__action {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    color: rgba(252, 232, 195, 0.6);
+    margin-left: auto;
+    white-space: nowrap;
+  }
+
+  &__row-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__time {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--sky-light);
+    letter-spacing: 0.5px;
+  }
+
+  &__transition {
+    font-family: var(--font-body);
+    font-size: 0.72rem;
+    color: rgba(252, 232, 195, 0.45);
+  }
+}

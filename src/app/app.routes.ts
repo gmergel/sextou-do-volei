@@ -27,4 +27,11 @@ export const routes: Routes = [
         (m) => m.PlayerListComponent
       ),
   },
+  {
+    path: 'jogo/:gameId/logs',
+    loadComponent: () =>
+      import('./features/game-logs/game-logs.component').then(
+        (m) => m.GameLogsComponent
+      ),
+  },
 ];

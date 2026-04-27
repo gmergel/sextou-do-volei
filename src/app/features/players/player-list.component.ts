@@ -1,7 +1,7 @@
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Player, PlayerStatus, Game } from '../../models/game.model';
 import { GameService } from './game.service';
@@ -9,7 +9,7 @@ import { GameService } from './game.service';
 @Component({
   selector: 'app-player-list',
   standalone: true,
-  imports: [DatePipe, FormsModule],
+  imports: [DatePipe, FormsModule, RouterLink],
   templateUrl: './player-list.component.html',
   styleUrl: './player-list.component.scss',
 })
