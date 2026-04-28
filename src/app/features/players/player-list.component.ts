@@ -244,6 +244,64 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   }
 
   // ---- Compartilhar lista ----
+  private readonly WOMEN = new Set([
+    'Michele', 'Dani', 'Raquel', 'Neide', 'Fran', 'Fernanda',
+    'Michelle', 'Rosa', 'Rosani', 'Vanessa', 'Adri',
+  ]);
+
+  private readonly WOMEN_RANK: Record<string, number> = {
+    'Michelle': 1, 'Dani': 2, 'Neide': 3, 'Fran': 4,
+    'Michele': 5, 'Raquel': 6, 'Rosani': 7, 'Fernanda': 8, 'Rosa': 9,
+  };
+
+  private readonly TALL = new Set(['Ger', 'Gilson', 'Arthur']);
+  private readonly MUST_SEPARATE = ['Leandro', 'Carlos'];
+
+  private buildTeams(confirmed: Player[]): { teamA: string[]; teamB: string[] } {
+    const women = confirmed.filter(p => this.WOMEN.has(p.name));
+    const men = confirmed.filter(p => !this.WOMEN.has(p.name));
+
+    women.sort((a, b) =>
+      (this.WOMEN_RANK[a.name] ?? 50) - (this.WOMEN_RANK[b.name] ?? 50)
+    );
+
+    const teamA: string[] = [];
+    const teamB: string[] = [];
+
+    // 1) Separar Leandro e Carlos
+    const mustSep = this.MUST_SEPARATE
+      .map(n => men.find(p => p.name === n))
+      .filter(Boolean) as typeof men;
+    if (mustSep.length >= 2) {
+      teamA.push(mustSep[0].name);
+      teamB.push(mustSep[1].name);
+      for (const p of mustSep) men.splice(men.indexOf(p), 1);
+    } else if (mustSep.length === 1) {
+      teamA.push(mustSep[0].name);
+      men.splice(men.indexOf(mustSep[0]), 1);
+    }
+
+    // 2) Distribuir altos alternadamente
+    const tall = men.filter(p => this.TALL.has(p.name));
+    for (const p of tall) men.splice(men.indexOf(p), 1);
+    for (let i = 0; i < tall.length; i++) {
+      (teamA.length <= teamB.length ? teamA : teamB).push(tall[i].name);
+    }
+
+    // 3) Mulheres por ranking (snake draft)
+    for (let i = 0; i < women.length; i++) {
+      (teamA.length <= teamB.length ? teamA : teamB).push(women[i].name);
+    }
+
+    // 4) Homens restantes (embaralhados)
+    const shuffled = [...men].sort(() => Math.random() - 0.5);
+    for (const p of shuffled) {
+      (teamA.length <= teamB.length ? teamA : teamB).push(p.name);
+    }
+
+    return { teamA, teamB };
+  }
+
   readonly shareText = computed(() => {
     const game = this.game();
     if (!game) return '';
@@ -251,19 +309,36 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     const [y, m, d] = game.date.split('-');
     const address = this.locationAddresses[game.location] ?? game.location;
     const gameUrl = `https://gmergel.github.io/sextou-do-volei/jogo/${this.gameId}`;
+
     const lines = [
       `🏐 *Sextou do Vôlei* — ${d}/${m} às ${game.time}`,
       `📍 ${game.location}`,
       address,
-      '',
-      `✅ *Confirmados (${confirmed.length}/${this.totalPlayers()}):*`,
-      ...confirmed
-        .sort((a, b) => new Date(a.lastChange ?? 0).getTime() - new Date(b.lastChange ?? 0).getTime())
-        .map((p, i) => `${i + 1}. ${p.name}`),
     ];
-    if (confirmed.length === 0) {
-      lines.push('Nenhum jogador confirmado ainda.');
+
+    if (confirmed.length < 4) {
+      lines.push(
+        '',
+        `✅ *Confirmados (${confirmed.length}/${this.totalPlayers()}):*`,
+        ...confirmed
+          .sort((a, b) => new Date(a.lastChange ?? 0).getTime() - new Date(b.lastChange ?? 0).getTime())
+          .map((p, i) => `${i + 1}. ${p.name}`),
+      );
+      if (confirmed.length === 0) {
+        lines.push('Nenhum jogador confirmado ainda.');
+      }
+    } else {
+      const { teamA, teamB } = this.buildTeams(confirmed);
+      lines.push(
+        '',
+        `🟡 *Time A (${teamA.length}):*`,
+        ...teamA.map((n, i) => `${i + 1}. ${n}`),
+        '',
+        `🔵 *Time B (${teamB.length}):*`,
+        ...teamB.map((n, i) => `${i + 1}. ${n}`),
+      );
     }
+
     lines.push('', `🔗 Confirme sua presença no app:`, gameUrl);
     return lines.join('\n');
   });
