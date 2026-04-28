@@ -286,6 +286,14 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   shareWhatsApp(): void {
     const text = this.shareText();
     if (!text) return;
+
+    // Web Share API (mobile) — preserva emojis perfeitamente
+    if (navigator.share) {
+      navigator.share({ text }).catch(() => {});
+      return;
+    }
+
+    // Fallback desktop: abre WhatsApp Web
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
 
