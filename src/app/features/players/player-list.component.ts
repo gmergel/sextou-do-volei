@@ -254,7 +254,11 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     'Michele': 5, 'Raquel': 6, 'Rosani': 7, 'Fernanda': 8, 'Rosa': 9,
   };
 
-  private readonly TALL = new Set(['Ger', 'Gilson', 'Arthur']);
+  private readonly MEN_RANK: Record<string, number> = {
+    'Leandro': 1, 'Carlos': 2, 'Arthur': 3, 'Ger': 4,
+    'Gilson': 5, 'Dias': 6, 'Wagner': 7,
+  };
+
   private readonly MUST_SEPARATE = ['Leandro', 'Carlos'];
 
   private buildTeams(confirmed: Player[]): { teamA: string[]; teamB: string[] } {
@@ -265,10 +269,14 @@ export class PlayerListComponent implements OnInit, OnDestroy {
       (this.WOMEN_RANK[a.name] ?? 50) - (this.WOMEN_RANK[b.name] ?? 50)
     );
 
+    men.sort((a, b) =>
+      (this.MEN_RANK[a.name] ?? 50) - (this.MEN_RANK[b.name] ?? 50)
+    );
+
     const teamA: string[] = [];
     const teamB: string[] = [];
 
-    // 1) Separar Leandro e Carlos
+    // 1) Separar Leandro e Carlos (os dois melhores, um em cada time)
     const mustSep = this.MUST_SEPARATE
       .map(n => men.find(p => p.name === n))
       .filter(Boolean) as typeof men;
@@ -281,22 +289,14 @@ export class PlayerListComponent implements OnInit, OnDestroy {
       men.splice(men.indexOf(mustSep[0]), 1);
     }
 
-    // 2) Distribuir altos alternadamente
-    const tall = men.filter(p => this.TALL.has(p.name));
-    for (const p of tall) men.splice(men.indexOf(p), 1);
-    for (let i = 0; i < tall.length; i++) {
-      (teamA.length <= teamB.length ? teamA : teamB).push(tall[i].name);
+    // 2) Homens restantes por ranking (snake draft)
+    for (const p of men) {
+      (teamA.length <= teamB.length ? teamA : teamB).push(p.name);
     }
 
     // 3) Mulheres por ranking (snake draft)
-    for (let i = 0; i < women.length; i++) {
-      (teamA.length <= teamB.length ? teamA : teamB).push(women[i].name);
-    }
-
-    // 4) Homens restantes (embaralhados)
-    const shuffled = [...men].sort(() => Math.random() - 0.5);
-    for (const p of shuffled) {
-      (teamA.length <= teamB.length ? teamA : teamB).push(p.name);
+    for (const w of women) {
+      (teamA.length <= teamB.length ? teamA : teamB).push(w.name);
     }
 
     return { teamA, teamB };
