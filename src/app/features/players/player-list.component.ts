@@ -181,6 +181,8 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   readonly showModal = signal(false);
   readonly showWaitModal = signal(false);
   readonly showInfoModal = signal(false);
+  readonly showShareModal = signal(false);
+  readonly shareCopied = signal(false);
   readonly waitPlayerId = signal(0);
 
   /** Posição na fila de espera (0 = já pode confirmar) */
@@ -214,11 +216,15 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     'Meca': 'Meca Sports Bar, Avenida Baltazar de Oliveira Garcia 2274, S\u00e3o Sebasti\u00e3o, Porto Alegre RS',
   };
 
+  private getMapsUrl(location: string): string {
+    const address = this.locationAddresses[location] ?? location;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+  }
+
   openMaps(): void {
     const loc = this.game()?.location;
     if (!loc) return;
-    const address = this.locationAddresses[loc] ?? loc;
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+    const url = this.getMapsUrl(loc);
     if (confirm(`Abrir ${loc} no Google Maps?`)) {
       window.open(url, '_blank');
     }
@@ -235,6 +241,52 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   closeWaitModal(): void {
     this.showWaitModal.set(false);
+  }
+
+  // ---- Compartilhar lista ----
+  readonly shareText = computed(() => {
+    const game = this.game();
+    if (!game) return '';
+    const confirmed = this.players().filter(p => p.status === 'confirmed');
+    const [y, m, d] = game.date.split('-');
+    const address = this.locationAddresses[game.location] ?? game.location;
+    const gameUrl = `https://gmergel.github.io/sextou-do-volei/jogo/${this.gameId}`;
+    const lines = [
+      `🏐 *Sextou do Vôlei* — ${d}/${m} às ${game.time}`,
+      `📍 ${game.location}`,
+      address,
+      '',
+      `✅ *Confirmados (${confirmed.length}/${this.totalPlayers()}):*`,
+      ...confirmed
+        .sort((a, b) => new Date(a.lastChange ?? 0).getTime() - new Date(b.lastChange ?? 0).getTime())
+        .map((p, i) => `${i + 1}. ${p.name}`),
+    ];
+    if (confirmed.length === 0) {
+      lines.push('Nenhum jogador confirmado ainda.');
+    }
+    lines.push('', `🔗 Confirme sua presença no app:`, gameUrl);
+    return lines.join('\n');
+  });
+
+  openShareModal(): void {
+    this.shareCopied.set(false);
+    this.showShareModal.set(true);
+  }
+
+  closeShareModal(): void {
+    this.showShareModal.set(false);
+  }
+
+  copyShareText(): void {
+    navigator.clipboard.writeText(this.shareText()).then(() => {
+      this.shareCopied.set(true);
+    });
+  }
+
+  shareWhatsApp(): void {
+    const text = this.shareText();
+    if (!text) return;
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
   }
 
   // ---- Jogadores convidados ----

@@ -5,6 +5,15 @@
     <!-- Header -->
     <header class="header">
       <div class="header__actions">
+        <button class="header__help" (click)="shareWhatsApp()" aria-label="Compartilhar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="18" cy="5" r="3"></circle>
+            <circle cx="6" cy="12" r="3"></circle>
+            <circle cx="18" cy="19" r="3"></circle>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+            <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+          </svg>
+        </button>
         <button class="header__help" (click)="showInfoModal.set(true)" aria-label="Como funciona">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
@@ -69,9 +78,10 @@
       </div>
     } @else {
       <div class="counters">
-        <div class="counters__badge counters__badge--confirmed">
+        <div class="counters__badge counters__badge--confirmed counters__badge--clickable" (click)="openShareModal()">
           <span class="counters__number">{{ confirmedCount() }}/{{ totalPlayers() }}</span>
           <span class="counters__label">vão jogar</span>
+          <span class="counters__share-hint">📋 copiar lista</span>
         </div>
         <div class="counters__badge counters__badge--pending">
           <span class="counters__number">{{ players().length - confirmedCount() - declinedCount() }}</span>
@@ -336,6 +346,23 @@
           OK
         </button>
       </form>
+    </div>
+  </div>
+}
+
+<!-- Modal Compartilhar Lista -->
+@if (showShareModal()) {
+  <div class="modal-backdrop" (click)="closeShareModal()">
+    <div class="modal modal--share" (click)="$event.stopPropagation()">
+      <span class="modal__emoji">📋</span>
+      <h3 class="modal__title">Lista de confirmados</h3>
+      <pre class="share-text">{{ shareText() }}</pre>
+      <div class="share-actions">
+        <button class="modal__btn modal__btn--confirm" (click)="copyShareText()">
+          {{ shareCopied() ? '✅ Copiado!' : '📋 Copiar' }}
+        </button>
+        <button class="modal__btn" (click)="closeShareModal()">Fechar</button>
+      </div>
     </div>
   </div>
 }
