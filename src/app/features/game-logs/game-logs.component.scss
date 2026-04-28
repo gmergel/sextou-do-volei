@@ -17,7 +17,7 @@
     z-index: 0;
     height: 100lvh;
     background:
-      url('https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=1200&q=80')
+      url('https://img.magnific.com/free-photo/details-ball-sport_23-2151869809.jpg?semt=ais_hybrid')
       center center / cover no-repeat;
     background-color: var(--ocean-deep);
   }
@@ -26,12 +26,13 @@
 .overlay {
   position: fixed;
   inset: 0;
+  /* Gradiente suave — deixa a foto respirar */
   background: linear-gradient(
     180deg,
-    rgba(14, 77, 110, 0.82) 0%,
-    rgba(27, 60, 80, 0.65) 40%,
-    rgba(232, 117, 44, 0.52) 75%,
-    rgba(199, 77, 60, 0.48) 100%
+    rgba(10, 50, 70, 0.30) 0%,
+    rgba(12, 40, 60, 0.45) 40%,
+    rgba(8, 25, 45, 0.58) 70%,
+    rgba(5, 15, 30, 0.70) 100%
   );
   z-index: 1;
 }
@@ -148,7 +149,7 @@
     z-index: 2;
     padding: 6px 14px;
     border-radius: 20px;
-    background: rgba(14, 77, 110, 0.7);
+    background: rgba(20, 55, 75, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(252, 232, 195, 0.12);
