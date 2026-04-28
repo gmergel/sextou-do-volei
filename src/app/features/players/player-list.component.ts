@@ -29,24 +29,43 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   private readonly SLOT_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 horas
 
-  /** Maior id de jogador habilitado a confirmar neste momento */
-  readonly maxEligibleId = computed(() => {
+  /** Conjunto de IDs de jogadores habilitados a confirmar neste momento */
+  readonly eligibleIds = computed(() => {
     const game = this.game();
-    if (!game) return 14;
+    if (!game) return new Set<number>();
     const createdAt = new Date(game.createdAt).getTime();
     const elapsed = Math.max(0, this.now() - createdAt);
     const baseSlots = game.totalPlayers + Math.floor(elapsed / this.SLOT_INTERVAL_MS);
     const players = this.players();
 
-    // Cada jogador elegível que declinou libera +1 vaga
-    let eligible = Math.min(23, baseSlots);
+    // Ordena todos por ID para posição na fila
+    const sorted = [...players].sort((a, b) => a.id - b.id);
+    const eligible = new Set<number>();
+
+    // Cada slot habilita o próximo da fila;
+    // cada decline dentro dos habilitados libera +1 slot
+    let slots = baseSlots;
     let prev = -1;
-    while (eligible !== prev && eligible <= 23) {
-      prev = eligible;
-      const declined = players.filter(p => p.id <= eligible && p.status === 'declined').length;
-      eligible = Math.min(23, baseSlots + declined);
+    while (eligible.size !== prev) {
+      prev = eligible.size;
+      eligible.clear();
+      let used = 0;
+      for (const p of sorted) {
+        if (used >= slots) break;
+        eligible.add(p.id);
+        used++;
+      }
+      // Recalcula slots: base + declines dentro dos elegíveis
+      const declined = sorted.filter(p => eligible.has(p.id) && p.status === 'declined').length;
+      slots = baseSlots + declined;
     }
     return eligible;
+  });
+
+  /** Maior id elegível (compat) */
+  readonly maxEligibleId = computed(() => {
+    const ids = this.eligibleIds();
+    return ids.size ? Math.max(...ids) : 14;
   });
 
   readonly confirmedCount = computed(() =>
@@ -59,22 +78,15 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   canInteract(player: Player): boolean {
     if (player.status === 'confirmed') return true;
-    const maxElig = this.maxEligibleId();
+    const eligible = this.eligibleIds();
 
-    // Convidados seguem a fila como os demais
-    if (player.guest) return player.id <= maxElig;
-
-    // Se tem effectiveId (penalidade por ter declinado), verifica se ainda vale
+    // Se tem effectiveId (penalidade por ter declinado e alguém aproveitou),
+    // verifica ambos: id original E effectiveId — basta um ser elegível
     if (player.effectiveId && player.effectiveId > player.id) {
-      const eid = player.effectiveId;
-      const penaltyValid = this.players().some(
-        p => !p.guest && p.id > maxElig && p.id <= eid && p.status === 'confirmed'
-      );
-      // Se ninguém aproveitou a vaga, usa prioridade original
-      return penaltyValid ? eid <= maxElig : player.id <= maxElig;
+      return eligible.has(player.id) || eligible.has(player.effectiveId);
     }
 
-    return player.id <= maxElig;
+    return eligible.has(player.id);
   }
 
   async ngOnInit(): Promise<void> {
@@ -111,14 +123,14 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     // Ao voltar atrás de um "Não", verifica se alguém já aproveitou a vaga
     let effectiveId: number | undefined;
     if (player.status === 'declined' && newStatus === 'pending') {
-      const currentMax = this.maxEligibleId();
-      const maxWithout = this.maxEligibleIdWithout(player.id);
-      // Alguém na faixa aberta pelo decline já confirmou?
+      const currentEligible = this.eligibleIds();
+      const withoutEligible = this.eligibleIdsWithout(player.id);
+      // Alguém que ficou elegível graças ao decline já confirmou?
       const someoneConfirmed = this.players().some(
-        p => !p.guest && p.id > maxWithout && p.id <= currentMax && p.status === 'confirmed'
+        p => !p.guest && currentEligible.has(p.id) && !withoutEligible.has(p.id) && p.status === 'confirmed'
       );
       if (someoneConfirmed) {
-        effectiveId = currentMax;
+        effectiveId = this.maxEligibleId();
       }
       // Se ninguém confirmou, volta sem penalidade
     }
@@ -150,23 +162,32 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Calcula maxEligibleId simulando que um jogador NÃO tivesse declinado */
-  private maxEligibleIdWithout(excludeId: number): number {
+  /** Calcula eligibleIds simulando que um jogador NÃO tivesse declinado */
+  private eligibleIdsWithout(excludeId: number): Set<number> {
     const game = this.game();
-    if (!game) return 14;
+    if (!game) return new Set();
     const createdAt = new Date(game.createdAt).getTime();
     const elapsed = Math.max(0, this.now() - createdAt);
     const baseSlots = game.totalPlayers + Math.floor(elapsed / this.SLOT_INTERVAL_MS);
     const players = this.players();
+    const sorted = [...players].sort((a, b) => a.id - b.id);
+    const eligible = new Set<number>();
 
-    let eligible = Math.min(23, baseSlots);
+    let slots = baseSlots;
     let prev = -1;
-    while (eligible !== prev && eligible <= 23) {
-      prev = eligible;
-      const declined = players.filter(
-        p => p.id <= eligible && p.id !== excludeId && p.status === 'declined'
+    while (eligible.size !== prev) {
+      prev = eligible.size;
+      eligible.clear();
+      let used = 0;
+      for (const p of sorted) {
+        if (used >= slots) break;
+        eligible.add(p.id);
+        used++;
+      }
+      const declined = sorted.filter(
+        p => eligible.has(p.id) && p.id !== excludeId && p.status === 'declined'
       ).length;
-      eligible = Math.min(23, baseSlots + declined);
+      slots = baseSlots + declined;
     }
     return eligible;
   }
@@ -188,13 +209,12 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   /** Posição na fila de espera (0 = já pode confirmar) */
   readonly waitQueuePosition = computed(() => {
     const pid = this.waitPlayerId();
-    const maxElig = this.maxEligibleId();
-    if (pid <= maxElig) return 0;
-    // Conta quantos jogadores à frente na fila (pelo id original)
-    // Jogadores prioritários que perderam prioridade (effectiveId) não contam
-    const ahead = this.players().filter(
-      p => !p.guest
-        && p.id > maxElig
+    const eligible = this.eligibleIds();
+    if (eligible.has(pid)) return 0;
+    // Conta quantos jogadores à frente na fila que ainda não são elegíveis
+    const sorted = [...this.players()].sort((a, b) => a.id - b.id);
+    const ahead = sorted.filter(
+      p => !eligible.has(p.id)
         && p.id < pid
         && p.status !== 'declined'
     ).length;

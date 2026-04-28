@@ -135,7 +135,7 @@ export class GameService {
       const id = (d.data() as PlayerDoc).id;
       return id > max ? id : max;
     }, 0);
-    const newId = Math.max(100, maxId + 1);
+    const newId = maxId + 1;
     const trimmed = name.trim();
     const data: PlayerDoc = {
       id: newId,
