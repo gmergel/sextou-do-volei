@@ -255,34 +255,55 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   };
 
   private readonly MEN_RANK: Record<string, number> = {
-    'Leandro': 1, 'Carlos': 2, 'Arthur': 3, 'Ger': 4,
-    'Gilson': 5, 'Dias': 6, 'Wagner': 7,
+    'Leandro': 1, 'Carlos': 2, 'Arthur': 3, 'Gilson': 4,
+    'Ger': 5, 'Thiago': 6, 'Dias': 7, 'Wagner': 8,
   };
 
   private readonly MUST_SEPARATE = ['Leandro', 'Carlos'];
 
-  private buildTeams(confirmed: Player[]): { teamA: string[]; teamB: string[] } {
+  /** PRNG simples baseada na data do jogo — mesma data = mesmos times */
+  private seededRng(seed: string): () => number {
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) {
+      h = Math.imul(31, h) + seed.charCodeAt(i) | 0;
+    }
+    return () => {
+      h = Math.imul(h ^ (h >>> 16), 0x45d9f3b);
+      h = Math.imul(h ^ (h >>> 13), 0x45d9f3b);
+      h = (h ^ (h >>> 16)) >>> 0;
+      return h / 0x100000000;
+    };
+  }
+
+  private buildTeams(confirmed: Player[], gameDate: string): { teamA: string[]; teamB: string[] } {
+    const rng = this.seededRng(gameDate);
     const women = confirmed.filter(p => this.WOMEN.has(p.name));
     const men = confirmed.filter(p => !this.WOMEN.has(p.name));
 
-    women.sort((a, b) =>
-      (this.WOMEN_RANK[a.name] ?? 50) - (this.WOMEN_RANK[b.name] ?? 50)
-    );
+    // Ranking com jitter (±1.5) — jogadores próximos podem trocar de ordem
+    const womenJitter = new Map<string, number>();
+    for (const w of women) {
+      womenJitter.set(w.name, (this.WOMEN_RANK[w.name] ?? 50) + (rng() - 0.5) * 3);
+    }
+    women.sort((a, b) => womenJitter.get(a.name)! - womenJitter.get(b.name)!);
 
-    men.sort((a, b) =>
-      (this.MEN_RANK[a.name] ?? 50) - (this.MEN_RANK[b.name] ?? 50)
-    );
+    const menJitter = new Map<string, number>();
+    for (const m of men) {
+      menJitter.set(m.name, (this.MEN_RANK[m.name] ?? 50) + (rng() - 0.5) * 3);
+    }
+    men.sort((a, b) => menJitter.get(a.name)! - menJitter.get(b.name)!);
 
     const teamA: string[] = [];
     const teamB: string[] = [];
 
-    // 1) Separar Leandro e Carlos (os dois melhores, um em cada time)
+    // 1) Separar Leandro e Carlos — lado alterna por semana
     const mustSep = this.MUST_SEPARATE
       .map(n => men.find(p => p.name === n))
       .filter(Boolean) as typeof men;
     if (mustSep.length >= 2) {
-      teamA.push(mustSep[0].name);
-      teamB.push(mustSep[1].name);
+      const swap = rng() < 0.5;
+      teamA.push(mustSep[swap ? 1 : 0].name);
+      teamB.push(mustSep[swap ? 0 : 1].name);
       for (const p of mustSep) men.splice(men.indexOf(p), 1);
     } else if (mustSep.length === 1) {
       teamA.push(mustSep[0].name);
@@ -328,7 +349,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
         lines.push('Nenhum jogador confirmado ainda.');
       }
     } else {
-      const { teamA, teamB } = this.buildTeams(confirmed);
+      const { teamA, teamB } = this.buildTeams(confirmed, game.date);
       lines.push(
         '',
         `🟡 *Time A (${teamA.length}):*`,
