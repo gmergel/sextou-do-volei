@@ -2,6 +2,7 @@ import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Game } from '../../models/game.model';
+import { TURMAS } from '../../models/turma.model';
 import { GameService } from '../players/game.service';
 
 @Component({
@@ -40,5 +41,14 @@ export class GameListComponent implements OnInit, OnDestroy {
   formatDate(dateStr: string): string {
     const [y, m, d] = dateStr.split('-');
     return `${d}/${m}`;
+  }
+
+  turmaLabel(game: Game): string {
+    const config = TURMAS[game.turma];
+    return config ? `${config.emoji} ${config.shortLabel}` : '';
+  }
+
+  turmaClass(game: Game): string {
+    return TURMAS[game.turma]?.colorClass ?? '';
   }
 }

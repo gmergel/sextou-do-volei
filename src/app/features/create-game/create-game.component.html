@@ -1,4 +1,4 @@
-<div class="beach-bg">
+<div class="beach-bg" [class]="turmaConfig.colorClass">
   <div class="overlay"></div>
 
   <main class="container">
@@ -9,6 +9,26 @@
     </header>
 
     <form class="form" (ngSubmit)="onSubmit()">
+      <!-- Turma -->
+      <div class="form__field">
+        <label class="form__label">Turma</label>
+        <div class="turma-options">
+          @for (key of turmaKeys; track key) {
+            <button
+              type="button"
+              class="turma-chip"
+              [class.turma-chip--active]="turma === key"
+              [class.turma-chip--sextou]="key === 'sextou'"
+              [class.turma-chip--domingou]="key === 'domingou'"
+              (click)="onTurmaChange(key)"
+            >
+              <span class="turma-chip__emoji">{{ turmas[key].emoji }}</span>
+              <span class="turma-chip__label">{{ turmas[key].shortLabel }}</span>
+            </button>
+          }
+        </div>
+      </div>
+
       <!-- Data -->
       <div class="form__field">
         <label class="form__label">Data</label>
@@ -25,19 +45,14 @@
       <div class="form__field">
         <label class="form__label">Horário</label>
         <div class="time-options">
-          <button
-            type="button"
-            class="time-chip"
-            [class.time-chip--active]="timeOption === 'preset1'"
-            (click)="timeOption = 'preset1'"
-          >19h–21h</button>
-
-          <button
-            type="button"
-            class="time-chip"
-            [class.time-chip--active]="timeOption === 'preset2'"
-            (click)="timeOption = 'preset2'"
-          >20h–22h</button>
+          @for (preset of turmaConfig.timePresets; track preset.label; let i = $index) {
+            <button
+              type="button"
+              class="time-chip"
+              [class.time-chip--active]="timeOption === 'preset' + (i + 1)"
+              (click)="timeOption = $any('preset' + (i + 1))"
+            >{{ preset.label }}</button>
+          }
 
           <button
             type="button"
@@ -102,7 +117,7 @@
         @if (creating()) {
           <span>Criando...</span>
         } @else {
-          <span>🏖️ Criar Jogo</span>
+          <span>{{ turmaConfig.emoji }} Criar Jogo</span>
         }
       </button>
     </form>

@@ -1,4 +1,4 @@
-<div class="beach-bg">
+<div class="beach-bg" [class]="turmaColorClass()">
   <div class="overlay"></div>
 
   <main class="container">
@@ -31,7 +31,7 @@
           </svg>
         </a>
       </div>
-      <span class="header__icon">🏐</span><span style="font-size: 1.2rem" class="header__question">#Sextou do Vôlei</span>
+      <span class="header__icon">🏐</span><span style="font-size: 1.2rem" class="header__question">{{ turmaLabel() }}</span>
       <h4 class="header__brand">BORA JOGAR?</h4>
       <p class="header__location header__location--link" (click)="openMaps()">
         <svg class="header__pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

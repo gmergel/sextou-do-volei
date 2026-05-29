@@ -992,3 +992,32 @@
     }
   }
 }
+
+/* ---- Turma color overrides ---- */
+.turma-sextou .overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 50, 80, 0.30) 0%,
+    rgba(12, 40, 70, 0.45) 40%,
+    rgba(8, 25, 55, 0.58) 70%,
+    rgba(5, 15, 40, 0.70) 100%
+  );
+}
+
+.turma-sextou .header__question {
+  color: #7dd3fc;
+}
+
+.turma-domingou .overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(70, 40, 10, 0.30) 0%,
+    rgba(60, 35, 12, 0.45) 40%,
+    rgba(45, 25, 8, 0.58) 70%,
+    rgba(30, 15, 5, 0.70) 100%
+  );
+}
+
+.turma-domingou .header__question {
+  color: #fdba74;
+}

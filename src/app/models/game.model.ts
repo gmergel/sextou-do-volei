@@ -1,7 +1,10 @@
+import { TurmaId } from './turma.model';
+
 export type PlayerStatus = 'pending' | 'confirmed' | 'declined';
 
 export interface Game {
   uid: string;
+  turma: TurmaId;
   date: string;
   time: string;
   location: string;

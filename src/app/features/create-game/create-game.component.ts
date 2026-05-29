@@ -2,6 +2,7 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { GameService } from '../players/game.service';
+import { TurmaId, TURMAS, TurmaConfig } from '../../models/turma.model';
 
 @Component({
   selector: 'app-create-game',
@@ -17,26 +18,43 @@ export class CreateGameComponent {
   readonly creating = signal(false);
   readonly totalPlayers = 14;
 
-  date = this.getNextFriday();
+  // Turma
+  turma: TurmaId = 'sextou';
+  readonly turmas = TURMAS;
+  readonly turmaKeys: TurmaId[] = ['sextou', 'domingou'];
 
-  private getNextFriday(): string {
-    const today = new Date();
-    const day = today.getDay(); // 0=Sun … 5=Fri
-    const diff = (5 - day + 7) % 7 || 7; // days until next Friday
-    const friday = new Date(today);
-    friday.setDate(today.getDate() + diff);
-    return friday.toISOString().slice(0, 10);
+  get turmaConfig(): TurmaConfig {
+    return TURMAS[this.turma];
   }
+
+  date = this.getNextGameDay(TURMAS.sextou.dayOfWeek);
+
+  onTurmaChange(turma: TurmaId): void {
+    this.turma = turma;
+    this.date = this.getNextGameDay(TURMAS[turma].dayOfWeek);
+    // Reset time option ao trocar de turma
+    this.timeOption = 'preset1';
+  }
+
+  private getNextGameDay(dayOfWeek: number): string {
+    const today = new Date();
+    const day = today.getDay();
+    const diff = (dayOfWeek - day + 7) % 7 || 7;
+    const target = new Date(today);
+    target.setDate(today.getDate() + diff);
+    return target.toISOString().slice(0, 10);
+  }
+
   location = '';
 
   // Horário
-  timeOption: 'preset1' | 'preset2' | 'custom' = 'preset1';
+  timeOption: 'preset1' | 'preset2' | 'preset3' | 'custom' = 'preset1';
   customStartHour = 18;
   customEndHour = 20;
 
-  readonly startHours = [18, 19, 20, 21, 22, 23];
+  readonly startHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
 
-  readonly locations = ['My Beach', "It's Nilo", 'MB', 'Meca'];
+  readonly locations = ['My Beach', "It's Nilo", 'MB', 'Meca', 'ASTTI'];
 
   get endHours(): number[] {
     const hours: number[] = [];
@@ -53,8 +71,10 @@ export class CreateGameComponent {
   }
 
   get resolvedTime(): string {
-    if (this.timeOption === 'preset1') return '19h–21h';
-    if (this.timeOption === 'preset2') return '20h–22h';
+    const presets = this.turmaConfig.timePresets;
+    if (this.timeOption === 'preset1' && presets[0]) return presets[0].value;
+    if (this.timeOption === 'preset2' && presets[1]) return presets[1].value;
+    if (this.timeOption === 'preset3' && presets[2]) return presets[2].value;
     const endLabel = this.customEndHour === 24 ? '00h' : `${this.customEndHour}h`;
     return `${this.customStartHour}h–${endLabel}`;
   }
@@ -68,6 +88,7 @@ export class CreateGameComponent {
 
     this.creating.set(true);
     const game = await this.gameService.createGame({
+      turma: this.turma,
       date: this.date,
       time: this.resolvedTime,
       location: this.location,

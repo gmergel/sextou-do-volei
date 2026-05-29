@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Player, PlayerStatus, Game } from '../../models/game.model';
+import { TURMAS } from '../../models/turma.model';
 import { GameService } from './game.service';
 
 @Component({
@@ -199,6 +200,18 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     return `${d}/${m}`;
   }
 
+  turmaLabel(): string {
+    const g = this.game();
+    if (!g) return '#Sextou do Vôlei';
+    return TURMAS[g.turma]?.label ?? '#Sextou do Vôlei';
+  }
+
+  turmaColorClass(): string {
+    const g = this.game();
+    if (!g) return 'turma-sextou';
+    return TURMAS[g.turma]?.colorClass ?? 'turma-sextou';
+  }
+
   readonly showModal = signal(false);
   readonly showWaitModal = signal(false);
   readonly showInfoModal = signal(false);
@@ -234,6 +247,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     "It's Nilo": "It's Esportes e Eventos, Avenida Dr Nilo Pe\u00e7anha 3370, Petr\u00f3polis, Porto Alegre RS",
     'MB': 'MB Beach Sports, Avenida Alexandre Luiz 190, Jardim Itu Sabar\u00e1, Porto Alegre RS',
     'Meca': 'Meca Sports Bar, Avenida Baltazar de Oliveira Garcia 2274, S\u00e3o Sebasti\u00e3o, Porto Alegre RS',
+    'ASTTI': 'ASTTI, Porto Alegre RS',
   };
 
   private getMapsUrl(location: string): string {

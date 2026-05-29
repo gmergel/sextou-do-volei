@@ -24,6 +24,7 @@ import {
   LogType,
   DEFAULT_PLAYERS,
 } from '../../models/game.model';
+import { TurmaId, TURMAS } from '../../models/turma.model';
 import { DeviceInfoService } from './device-info.service';
 
 @Injectable({ providedIn: 'root' })
@@ -52,7 +53,7 @@ export class GameService {
     };
     const gameDoc = doc(this.firestore, 'games', game.uid);
     await setDoc(gameDoc, game);
-    await this.seedPlayers(game.uid);
+    await this.seedPlayers(game.uid, game.turma);
     return game;
   }
 
@@ -116,9 +117,10 @@ export class GameService {
     await addDoc(checkinsCol, checkinLog);
   }
 
-  private async seedPlayers(gameId: string): Promise<void> {
+  private async seedPlayers(gameId: string, turma?: TurmaId): Promise<void> {
+    const players = turma ? TURMAS[turma].defaultPlayers : DEFAULT_PLAYERS;
     const batch = writeBatch(this.firestore);
-    for (const player of DEFAULT_PLAYERS) {
+    for (const player of players) {
       const playerDoc = doc(
         this.firestore, 'games', gameId, 'players', String(player.id)
       );

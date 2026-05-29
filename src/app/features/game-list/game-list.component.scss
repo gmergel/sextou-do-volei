@@ -149,6 +149,29 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  &__turma-badge {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+
+    &.badge--sextou {
+      background: rgba(14, 165, 233, 0.2);
+      color: #7dd3fc;
+      border: 1px solid rgba(14, 165, 233, 0.4);
+    }
+
+    &.badge--domingou {
+      background: rgba(249, 115, 22, 0.2);
+      color: #fdba74;
+      border: 1px solid rgba(249, 115, 22, 0.4);
+    }
   }
 
   &__date {
@@ -249,4 +272,17 @@
   padding-top: 8px;
   font-size: 0.85rem;
   color: rgba(252, 232, 195, 0.45);
+}
+
+/* ---- Turma card accents ---- */
+.game-card.turma-sextou:hover {
+  border-color: rgba(14, 165, 233, 0.5);
+  background: rgba(14, 165, 233, 0.1);
+  box-shadow: 0 0 16px rgba(14, 165, 233, 0.15);
+}
+
+.game-card.turma-domingou:hover {
+  border-color: rgba(249, 115, 22, 0.5);
+  background: rgba(249, 115, 22, 0.1);
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.15);
 }
