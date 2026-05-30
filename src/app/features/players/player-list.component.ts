@@ -269,14 +269,14 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     'Michelle', 'Rosa', 'Rosani', 'Vanessa', 'Adri',
   ]);
 
-  private readonly WOMEN_RANK: Record<string, number> = {
-    'Michelle': 1, 'Dani': 2, 'Neide': 3, 'Fran': 4,
-    'Michele': 5, 'Raquel': 6, 'Rosani': 7, 'Fernanda': 8, 'Rosa': 9,
-  };
-
-  private readonly MEN_RANK: Record<string, number> = {
-    'Leandro': 1, 'Carlos': 2, 'Arthur': 3, 'Gilson': 4,
-    'Ger': 5, 'Thiago': 6, 'Dias': 7, 'Wagner': 8,
+  /** Pontuação de habilidade: 1 = ruim, 2 = médio, 3 = bom */
+  private readonly PLAYER_RATING: Record<string, number> = {
+    'Adri': 1, 'Alcides': 2, 'Arthur': 3, 'Carlos': 3,
+    'Cleber': 1, 'Dani': 3, 'Daniel': 1, 'Dias': 2,
+    'Felipe': 2, 'Fernanda': 1, 'Fran': 2, 'Ger': 2,
+    'Gilson': 3, 'Leandro': 3, 'Michele': 2, 'Michelle': 3,
+    'Neide': 3, 'Raquel': 2, 'Rosa': 1, 'Rosani': 1,
+    'Thiago': 3, 'Vanessa': 2, 'Wagner': 2,
   };
 
   private readonly MUST_SEPARATE = ['Leandro', 'Carlos'];
@@ -297,47 +297,80 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   private buildTeams(confirmed: Player[], gameDate: string): { teamA: string[]; teamB: string[] } {
     const rng = this.seededRng(gameDate);
-    const women = confirmed.filter(p => this.WOMEN.has(p.name));
-    const men = confirmed.filter(p => !this.WOMEN.has(p.name));
+    const getRating = (name: string) => this.PLAYER_RATING[name] ?? 2;
 
-    // Ranking com jitter (±1.5) — jogadores próximos podem trocar de ordem
-    const womenJitter = new Map<string, number>();
-    for (const w of women) {
-      womenJitter.set(w.name, (this.WOMEN_RANK[w.name] ?? 50) + (rng() - 0.5) * 3);
-    }
-    women.sort((a, b) => womenJitter.get(a.name)! - womenJitter.get(b.name)!);
-
-    const menJitter = new Map<string, number>();
-    for (const m of men) {
-      menJitter.set(m.name, (this.MEN_RANK[m.name] ?? 50) + (rng() - 0.5) * 3);
-    }
-    men.sort((a, b) => menJitter.get(a.name)! - menJitter.get(b.name)!);
+    const allWomen = confirmed.filter(p => this.WOMEN.has(p.name));
+    const allMen = confirmed.filter(p => !this.WOMEN.has(p.name));
 
     const teamA: string[] = [];
     const teamB: string[] = [];
 
-    // 1) Separar Leandro e Carlos — lado alterna por semana
-    const mustSep = this.MUST_SEPARATE
-      .map(n => men.find(p => p.name === n))
-      .filter(Boolean) as typeof men;
-    if (mustSep.length >= 2) {
-      const swap = rng() < 0.5;
-      teamA.push(mustSep[swap ? 1 : 0].name);
-      teamB.push(mustSep[swap ? 0 : 1].name);
-      for (const p of mustSep) men.splice(men.indexOf(p), 1);
-    } else if (mustSep.length === 1) {
-      teamA.push(mustSep[0].name);
-      men.splice(men.indexOf(mustSep[0]), 1);
+    // 1) Regra de ouro: separar Leandro e Carlos
+    const swap = rng() < 0.5;
+    const leandro = allMen.find(p => p.name === 'Leandro');
+    const carlos = allMen.find(p => p.name === 'Carlos');
+    const remainingMen = allMen.filter(p => p.name !== 'Leandro' && p.name !== 'Carlos');
+    let menPointsA = 0, menPointsB = 0;
+    let menCountA = 0, menCountB = 0;
+
+    if (leandro && carlos) {
+      if (swap) {
+        teamA.push('Carlos'); menPointsA += getRating('Carlos'); menCountA++;
+        teamB.push('Leandro'); menPointsB += getRating('Leandro'); menCountB++;
+      } else {
+        teamA.push('Leandro'); menPointsA += getRating('Leandro'); menCountA++;
+        teamB.push('Carlos'); menPointsB += getRating('Carlos'); menCountB++;
+      }
+    } else if (leandro) {
+      teamA.push('Leandro'); menPointsA += getRating('Leandro'); menCountA++;
+    } else if (carlos) {
+      teamA.push('Carlos'); menPointsA += getRating('Carlos'); menCountA++;
     }
 
-    // 2) Homens restantes por ranking (snake draft)
-    for (const p of men) {
-      (teamA.length <= teamB.length ? teamA : teamB).push(p.name);
+    // 2) Ordenar homens por rating DESCENDENTE (melhores primeiro) com jitter
+    const sortDescWithJitter = (list: Player[]) => {
+      const jitter = new Map<string, number>();
+      for (const p of list) {
+        jitter.set(p.name, getRating(p.name) + (rng() - 0.5) * 0.8);
+      }
+      list.sort((a, b) => jitter.get(b.name)! - jitter.get(a.name)!);
+    };
+    sortDescWithJitter(remainingMen);
+    sortDescWithJitter(allWomen);
+
+    // 3) Distribuir homens: cada um vai pro time com MENOR pontuação masculina
+    //    Capacidade máxima = ceil(totalMen/2) para cada time
+    //    Se ímpar, o time com menor pts fica com o homem extra
+    const menMax = Math.ceil(allMen.length / 2);
+    for (const p of remainingMen) {
+      const rating = getRating(p.name);
+      const canA = menCountA < menMax;
+      const canB = menCountB < menMax;
+      if (canA && (!canB || menPointsA <= menPointsB)) {
+        teamA.push(p.name); menPointsA += rating; menCountA++;
+      } else {
+        teamB.push(p.name); menPointsB += rating; menCountB++;
+      }
     }
 
-    // 3) Mulheres por ranking (snake draft)
-    for (const w of women) {
-      (teamA.length <= teamB.length ? teamA : teamB).push(w.name);
+    // 4) Definir alvos de mulheres para equilibrar tamanho total dos times
+    const teamSizeA = Math.ceil(confirmed.length / 2);
+    const womenTargetA = teamSizeA - menCountA;
+    const womenTargetB = allWomen.length - womenTargetA;
+
+    // 5) Distribuir mulheres: usar pontuação TOTAL do time (H+M) para compensar
+    //    desequilíbrios masculinos na distribuição feminina
+    let totalPointsA = menPointsA, totalPointsB = menPointsB;
+    let womenCountA = 0, womenCountB = 0;
+    for (const w of allWomen) {
+      const rating = getRating(w.name);
+      const canA = womenCountA < womenTargetA;
+      const canB = womenCountB < womenTargetB;
+      if (canA && (!canB || totalPointsA <= totalPointsB)) {
+        teamA.push(w.name); totalPointsA += rating; womenCountA++;
+      } else {
+        teamB.push(w.name); totalPointsB += rating; womenCountB++;
+      }
     }
 
     return { teamA, teamB };
