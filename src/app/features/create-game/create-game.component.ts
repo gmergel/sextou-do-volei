@@ -1,8 +1,9 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { GameService } from '../players/game.service';
 import { TurmaId, TURMAS, TurmaConfig } from '../../models/turma.model';
+import { NominatimService, NominatimResult } from './nominatim.service';
 
 @Component({
   selector: 'app-create-game',
@@ -14,6 +15,7 @@ import { TurmaId, TURMAS, TurmaConfig } from '../../models/turma.model';
 export class CreateGameComponent {
   private readonly router = inject(Router);
   private readonly gameService = inject(GameService);
+  private readonly nominatim = inject(NominatimService);
 
   readonly creating = signal(false);
   readonly totalPlayers = 14;
@@ -32,7 +34,6 @@ export class CreateGameComponent {
   onTurmaChange(turma: TurmaId): void {
     this.turma = turma;
     this.date = this.getNextGameDay(TURMAS[turma].dayOfWeek);
-    // Reset time option ao trocar de turma
     this.timeOption = 'preset1';
   }
 
@@ -45,7 +46,82 @@ export class CreateGameComponent {
     return target.toISOString().slice(0, 10);
   }
 
+  // Local
   location = '';
+  locationAddress = '';
+  locationMode: 'preset' | 'custom' = 'preset';
+  searchQuery = '';
+  readonly searchResults = signal<NominatimResult[]>([]);
+  readonly searching = signal(false);
+  private searchTimer: any;
+
+  readonly locations = ['My Beach', "It's Nilo", 'MB', 'Meca', 'ASTTI'];
+
+  readonly knownAddresses: Record<string, string> = {
+    'My Beach': 'My Beach Sports, Avenida Circular 173, Vila Jardim, Porto Alegre RS',
+    "It's Nilo": "It's Esportes e Eventos, Avenida Dr Nilo Peçanha 3370, Petrópolis, Porto Alegre RS",
+    'MB': 'MB Beach Sports, Avenida Alexandre Luiz 190, Jardim Itu Sabará, Porto Alegre RS',
+    'Meca': 'Meca Sports Bar, Avenida Baltazar de Oliveira Garcia 2274, São Sebastião, Porto Alegre RS',
+    'ASTTI': 'ASTTI, Porto Alegre RS',
+    'Arena Beach': 'Arena Beach POA, Avenida Sertório, Porto Alegre RS',
+    'LFR Beach': 'LFR Beach, Moinhos de Vento, Porto Alegre RS',
+    'Alma Beach': 'Alma Beach Sports, 4º Distrito, Porto Alegre RS',
+    'Sogipa': 'Sogipa, Rua Barão de Cotegipe 415, São João, Porto Alegre RS',
+  };
+
+  readonly otherLocations = ['Arena Beach', 'LFR Beach', 'Alma Beach', 'Sogipa'];
+
+  get filteredOtherLocations(): string[] {
+    if (!this.searchQuery) return this.otherLocations;
+    const q = this.searchQuery.toLowerCase();
+    return this.otherLocations.filter(l => l.toLowerCase().includes(q));
+  }
+
+  selectLocation(loc: string): void {
+    this.location = loc;
+    this.locationAddress = this.knownAddresses[loc] ?? '';
+    this.locationMode = 'preset';
+    this.searchResults.set([]);
+    this.searchQuery = '';
+  }
+
+  selectOutro(): void {
+    this.locationMode = 'custom';
+    this.location = '';
+    this.locationAddress = '';
+    this.searchResults.set([]);
+  }
+
+  onSearchInput(): void {
+    clearTimeout(this.searchTimer);
+    this.searchResults.set([]);
+    if (this.searchQuery.length < 3) return;
+    if (this.filteredOtherLocations.length > 0) return;
+    this.searchTimer = setTimeout(() => this.doSearch(), 350);
+  }
+
+  private async doSearch(): Promise<void> {
+    this.searching.set(true);
+    try {
+      const results = await this.nominatim.search(this.searchQuery);
+      this.searchResults.set(results);
+    } finally {
+      this.searching.set(false);
+    }
+  }
+
+  pickResult(result: NominatimResult): void {
+    this.location = result.name || result.display_name.split(',')[0];
+    this.locationAddress = result.display_name;
+    this.searchResults.set([]);
+  }
+
+  pickKnownLocation(loc: string): void {
+    this.location = loc;
+    this.locationAddress = this.knownAddresses[loc] ?? '';
+    this.searchQuery = loc;
+    this.searchResults.set([]);
+  }
 
   // Horário
   timeOption: 'preset1' | 'preset2' | 'preset3' | 'custom' = 'preset1';
@@ -53,8 +129,6 @@ export class CreateGameComponent {
   customEndHour = 20;
 
   readonly startHours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23];
-
-  readonly locations = ['My Beach', "It's Nilo", 'MB', 'Meca', 'ASTTI'];
 
   get endHours(): number[] {
     const hours: number[] = [];
@@ -92,6 +166,7 @@ export class CreateGameComponent {
       date: this.date,
       time: this.resolvedTime,
       location: this.location,
+      locationAddress: this.locationAddress || undefined,
       totalPlayers: this.totalPlayers,
     });
     this.router.navigate(['/jogo', game.uid]);

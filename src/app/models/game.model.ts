@@ -8,6 +8,7 @@ export interface Game {
   date: string;
   time: string;
   location: string;
+  locationAddress?: string;
   totalPlayers: number;
   createdAt: string;
 }

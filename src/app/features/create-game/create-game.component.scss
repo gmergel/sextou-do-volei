@@ -329,6 +329,69 @@
   }
 }
 
+/* ---- Location search ---- */
+.location-search {
+  margin-top: 10px;
+  animation: slide-down 0.25s ease;
+
+  &__loading {
+    display: block;
+    margin-top: 6px;
+    font-size: 0.8rem;
+    color: var(--sand-mid);
+  }
+
+  &__results {
+    list-style: none;
+    padding: 0;
+    margin: 8px 0 0;
+    border-radius: 12px;
+    border: 2px solid var(--glass-border);
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    overflow: hidden;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+
+  &__item {
+    padding: 12px 14px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--glass-border);
+    transition: background 0.15s;
+    -webkit-tap-highlight-color: transparent;
+
+    &:last-child { border-bottom: none; }
+    &:active { background: rgba(255, 255, 255, 0.08); }
+
+    strong {
+      display: block;
+      font-size: 0.95rem;
+      color: var(--sand-light);
+    }
+
+    small {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--sand-mid);
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+  }
+
+  &__selected {
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    background: rgba(40, 200, 100, 0.15);
+    border: 1.5px solid rgba(40, 210, 100, 0.4);
+    color: #a8ffc8;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+}
+
 /* ---- Turma color accent on overlay ---- */
 .turma-sextou .overlay {
   background: linear-gradient(

@@ -256,10 +256,17 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     'MB': 'MB Beach Sports, Avenida Alexandre Luiz 190, Jardim Itu Sabar\u00e1, Porto Alegre RS',
     'Meca': 'Meca Sports Bar, Avenida Baltazar de Oliveira Garcia 2274, S\u00e3o Sebasti\u00e3o, Porto Alegre RS',
     'ASTTI': 'ASTTI, Porto Alegre RS',
+    'Arena Beach': 'Arena Beach POA, Avenida Sertório, Porto Alegre RS',
+    'LFR Beach': 'LFR Beach, Moinhos de Vento, Porto Alegre RS',
+    'Alma Beach': 'Alma Beach Sports, 4º Distrito, Porto Alegre RS',
+    'Sogipa': 'Sogipa, Rua Barão de Cotegipe 415, São João, Porto Alegre RS',
   };
 
   private getMapsUrl(location: string): string {
-    const address = this.locationAddresses[location] ?? location;
+    const game = this.game();
+    const address = game?.locationAddress
+      ?? this.locationAddresses[location]
+      ?? location;
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   }
 
@@ -370,7 +377,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     if (!game) return '';
     const confirmed = this.players().filter(p => p.status === 'confirmed');
     const [y, m, d] = game.date.split('-');
-    const address = this.locationAddresses[game.location] ?? game.location;
+    const address = game.locationAddress ?? this.locationAddresses[game.location] ?? game.location;
     const gameUrl = `https://gmergel.github.io/sextou-do-volei/jogo/${this.gameId}`;
 
     const lines = [

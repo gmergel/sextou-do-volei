@@ -101,11 +101,59 @@
             <button
               type="button"
               class="location-chip"
-              [class.location-chip--active]="location === loc"
-              (click)="location = loc"
+              [class.location-chip--active]="location === loc && locationMode === 'preset'"
+              (click)="selectLocation(loc)"
             >{{ loc }}</button>
           }
+          <button
+            type="button"
+            class="location-chip"
+            [class.location-chip--active]="locationMode === 'custom'"
+            (click)="selectOutro()"
+          >📍 Outro</button>
         </div>
+
+        @if (locationMode === 'custom') {
+          <div class="location-search">
+            <input
+              class="form__input"
+              type="text"
+              [(ngModel)]="searchQuery"
+              name="searchQuery"
+              placeholder="Buscar local em Porto Alegre..."
+              autocomplete="off"
+              (ngModelChange)="onSearchInput()"
+            />
+            @if (filteredOtherLocations.length && !location) {
+              <ul class="location-search__results">
+                @for (loc of filteredOtherLocations; track loc) {
+                  <li class="location-search__item" (click)="pickKnownLocation(loc)">
+                    <strong>{{ loc }}</strong>
+                    <small>{{ knownAddresses[loc] }}</small>
+                  </li>
+                }
+              </ul>
+            }
+            @if (searching()) {
+              <span class="location-search__loading">Buscando...</span>
+            }
+            @if (searchResults().length) {
+              <ul class="location-search__results">
+                @for (result of searchResults(); track result.display_name) {
+                  <li class="location-search__item" (click)="pickResult(result)">
+                    <strong>{{ result.name || result.display_name.split(',')[0] }}</strong>
+                    <small>{{ result.display_name }}</small>
+                  </li>
+                }
+              </ul>
+            }
+            @if (location && locationMode === 'custom') {
+              <div class="location-search__selected">
+                ✅ {{ location }}
+              </div>
+            }
+          </div>
+        }
       </div>
 
       <!-- Submit -->
