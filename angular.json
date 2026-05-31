@@ -35,6 +35,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/sextou-do-volei/",
               "budgets": [
                 {
                   "type": "initial",

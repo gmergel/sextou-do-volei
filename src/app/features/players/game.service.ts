@@ -14,7 +14,7 @@ import {
   orderBy,
   query,
 } from '@angular/fire/firestore';
-import { Observable, of, switchMap } from 'rxjs';
+import { Observable, of, switchMap, map } from 'rxjs';
 import {
   Game,
   Player,
@@ -37,7 +37,7 @@ export class GameService {
     const gamesCol = collection(this.firestore, 'games');
     const q = query(gamesCol, orderBy('createdAt', 'desc'));
     return (collectionData(q) as Observable<Game[]>).pipe(
-      map(games => games.map(g => ({ ...g, turma: g.turma || 'sextou' })))
+      map(games => games.map((g: Game) => ({ ...g, turma: g.turma || 'sextou' as const })))
     );
   }
 
