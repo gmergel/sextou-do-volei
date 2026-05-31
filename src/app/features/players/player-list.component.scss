@@ -77,7 +77,7 @@
   z-index: 2;
   max-width: 480px;
   margin: 0 auto;
-  padding: 24px 16px 40px;
+  padding: 16px 16px 40px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -86,7 +86,6 @@
 /* ---- Header ---- */
 .header {
   text-align: center;
-  padding-top: 16px;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -100,12 +99,12 @@
 
   &__brand {
     font-family: var(--font-display);
-    font-size: 2.8rem;
+    font-size: 1.8rem;
     letter-spacing: 2px;
     color: var(--white);
     text-shadow: 2px 3px 8px var(--shadow);
     line-height: 1;
-    margin: 0;
+    margin: 4px 0 0;
   }
 
   &__location {
@@ -172,47 +171,6 @@
   100% { transform: translateY(0) scaleX(1) scaleY(1); }
 }
 
-/* ---- Botões header (? e logs) ---- */
-.header__actions {
-  position: absolute;
-  top: 16px;
-  right: 0;
-  display: flex;
-  gap: 8px;
-}
-
-.header__help,
-.header__logs {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: rgba(252, 232, 195, 0.7);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-  text-decoration: none;
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  @media (hover: hover) {
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
-      border-color: rgba(255, 255, 255, 0.4);
-      color: var(--sand-light);
-    }
-  }
-}
 
 /* ---- Contadores (3 badges) ---- */
 .counters {
@@ -991,4 +949,116 @@
       height: 22px;
     }
   }
+}
+
+/* ---- Turma bar (full-width, topo da tela) ---- */
+.turma-bar {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  &__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 480px;
+    padding: 0 16px;
+    margin: 0 auto;
+    height: 52px;
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__emoji {
+    font-size: 1.5rem;
+  }
+
+  &__text {
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0;
+    height: 100%;
+  }
+
+  &__btn {
+    width: 44px;
+    height: 52px;
+    border-radius: 0;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+    text-decoration: none;
+
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (hover: hover) {
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+      }
+    }
+
+    &:active {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(0.95);
+    }
+  }
+}
+
+.turma-sextou .turma-bar {
+  background: rgba(8, 60, 110, 0.7);
+  color: #bae6fd;
+}
+
+.turma-domingou .turma-bar {
+  background: rgba(120, 60, 5, 0.7);
+  color: #fed7aa;
+}
+
+/* ---- Turma color overrides ---- */
+.turma-sextou .overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(10, 50, 80, 0.30) 0%,
+    rgba(12, 40, 70, 0.45) 40%,
+    rgba(8, 25, 55, 0.58) 70%,
+    rgba(5, 15, 40, 0.70) 100%
+  );
+}
+
+.turma-domingou .overlay {
+  background: linear-gradient(
+    180deg,
+    rgba(70, 40, 10, 0.30) 0%,
+    rgba(60, 35, 12, 0.45) 40%,
+    rgba(45, 25, 8, 0.58) 70%,
+    rgba(30, 15, 5, 0.70) 100%
+  );
 }

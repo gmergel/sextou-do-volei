@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Player, PlayerStatus, Game } from '../../models/game.model';
+import { TURMAS } from '../../models/turma.model';
 import { GameService } from './game.service';
 
 @Component({
@@ -196,7 +197,27 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     const g = this.game();
     if (!g) return '';
     const [y, m, d] = g.date.split('-');
-    return `${d}/${m}`;
+    const date = new Date(+y, +m - 1, +d);
+    const weekday = date.toLocaleDateString('pt-BR', { weekday: 'long' }).replace('-feira', '');
+    return `${d}/${m} (${weekday})`;
+  }
+
+  turmaLabel(): string {
+    const g = this.game();
+    if (!g) return '#Sextou do Vôlei';
+    return TURMAS[g.turma]?.label ?? '#Sextou do Vôlei';
+  }
+
+  turmaEmoji(): string {
+    const g = this.game();
+    if (!g) return '🍺';
+    return TURMAS[g.turma]?.emoji ?? '🍺';
+  }
+
+  turmaColorClass(): string {
+    const g = this.game();
+    if (!g) return 'turma-sextou';
+    return TURMAS[g.turma]?.colorClass ?? 'turma-sextou';
   }
 
   readonly showModal = signal(false);
@@ -234,10 +255,18 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     "It's Nilo": "It's Esportes e Eventos, Avenida Dr Nilo Pe\u00e7anha 3370, Petr\u00f3polis, Porto Alegre RS",
     'MB': 'MB Beach Sports, Avenida Alexandre Luiz 190, Jardim Itu Sabar\u00e1, Porto Alegre RS',
     'Meca': 'Meca Sports Bar, Avenida Baltazar de Oliveira Garcia 2274, S\u00e3o Sebasti\u00e3o, Porto Alegre RS',
+    'ASTTI': 'ASTTI, Porto Alegre RS',
+    'Arena Beach': 'Arena Beach POA, Avenida Sertório, Porto Alegre RS',
+    'LFR Beach': 'LFR Beach, Moinhos de Vento, Porto Alegre RS',
+    'Alma Beach': 'Alma Beach Sports, 4º Distrito, Porto Alegre RS',
+    'Sogipa': 'Sogipa, Rua Barão de Cotegipe 415, São João, Porto Alegre RS',
   };
 
   private getMapsUrl(location: string): string {
-    const address = this.locationAddresses[location] ?? location;
+    const game = this.game();
+    const address = game?.locationAddress
+      ?? this.locationAddresses[location]
+      ?? location;
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
   }
 
@@ -267,8 +296,20 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   private readonly WOMEN = new Set([
     'Michele', 'Dani', 'Raquel', 'Neide', 'Fran', 'Fernanda',
     'Michelle', 'Rosa', 'Rosani', 'Vanessa', 'Adri',
+    'Vanessa do Carlos', 'Vanessa do Felipe', 'Luana', 'Nathi',
   ]);
 
+  private readonly WOMEN_RANK: Record<string, number> = {
+    'Michelle': 1, 'Dani': 2, 'Neide': 3, 'Fran': 4,
+    'Michele': 5, 'Raquel': 6, 'Rosani': 7, 'Fernanda': 8, 'Rosa': 9,
+    'Adri': 10, 'Vanessa do Felipe': 11, 'Vanessa': 11,
+    'Vanessa do Carlos': 12, 'Luana': 13, 'Nathi': 14,
+  };
+
+  private readonly MEN_RANK: Record<string, number> = {
+    'Leandro': 1, 'Carlos': 3, 'Carlos da Adri': 3, 'Arthur': 3, 'Gilson': 4,
+    'Ger': 5, 'Thiago': 6, 'Dias': 7, 'Wagner': 8,
+    'Felipe': 9, 'Carlos da Vanessa': 10, 'Adel': 11, 'Rafa': 12,
   /** Pontuação de habilidade: 1 = ruim, 2 = médio, 3 = bom */
   private readonly PLAYER_RATING: Record<string, number> = {
     'Adri': 1, 'Alcides': 2, 'Arthur': 3, 'Carlos': 3,
@@ -279,7 +320,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     'Thiago': 3, 'Vanessa': 2, 'Wagner': 2,
   };
 
-  private readonly MUST_SEPARATE = ['Leandro', 'Carlos'];
+  private readonly MUST_SEPARATE = ['Leandro', 'Carlos', 'Carlos da Adri'];
 
   /** PRNG simples baseada na data do jogo — mesma data = mesmos times */
   private seededRng(seed: string): () => number {
@@ -381,7 +422,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     if (!game) return '';
     const confirmed = this.players().filter(p => p.status === 'confirmed');
     const [y, m, d] = game.date.split('-');
-    const address = this.locationAddresses[game.location] ?? game.location;
+    const address = game.locationAddress ?? this.locationAddresses[game.location] ?? game.location;
     const gameUrl = `https://gmergel.github.io/sextou-do-volei/jogo/${this.gameId}`;
 
     const lines = [

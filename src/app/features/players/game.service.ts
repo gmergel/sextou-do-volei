@@ -24,6 +24,7 @@ import {
   LogType,
   DEFAULT_PLAYERS,
 } from '../../models/game.model';
+import { TurmaId, TURMAS } from '../../models/turma.model';
 import { DeviceInfoService } from './device-info.service';
 
 @Injectable({ providedIn: 'root' })
@@ -35,13 +36,18 @@ export class GameService {
   games$(): Observable<Game[]> {
     const gamesCol = collection(this.firestore, 'games');
     const q = query(gamesCol, orderBy('createdAt', 'desc'));
-    return collectionData(q) as Observable<Game[]>;
+    return (collectionData(q) as Observable<Game[]>).pipe(
+      map(games => games.map(g => ({ ...g, turma: g.turma || 'sextou' })))
+    );
   }
 
   async getGame(gameId: string): Promise<Game | null> {
     const gameDoc = doc(this.firestore, 'games', gameId);
     const snap = await getDoc(gameDoc);
-    return snap.exists() ? (snap.data() as Game) : null;
+    if (!snap.exists()) return null;
+    const game = snap.data() as Game;
+    if (!game.turma) game.turma = 'sextou';
+    return game;
   }
 
   async createGame(data: Omit<Game, 'uid' | 'createdAt'>): Promise<Game> {
@@ -52,7 +58,7 @@ export class GameService {
     };
     const gameDoc = doc(this.firestore, 'games', game.uid);
     await setDoc(gameDoc, game);
-    await this.seedPlayers(game.uid);
+    await this.seedPlayers(game.uid, game.turma);
     return game;
   }
 
@@ -116,9 +122,10 @@ export class GameService {
     await addDoc(checkinsCol, checkinLog);
   }
 
-  private async seedPlayers(gameId: string): Promise<void> {
+  private async seedPlayers(gameId: string, turma?: TurmaId): Promise<void> {
+    const players = turma ? TURMAS[turma].defaultPlayers : DEFAULT_PLAYERS;
     const batch = writeBatch(this.firestore);
-    for (const player of DEFAULT_PLAYERS) {
+    for (const player of players) {
       const playerDoc = doc(
         this.firestore, 'games', gameId, 'players', String(player.id)
       );

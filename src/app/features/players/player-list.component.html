@@ -1,11 +1,15 @@
-<div class="beach-bg">
+<div class="beach-bg" [class]="turmaColorClass()">
   <div class="overlay"></div>
 
-  <main class="container">
-    <!-- Header -->
-    <header class="header">
-      <div class="header__actions">
-        <button class="header__help" (click)="shareWhatsApp()" aria-label="Compartilhar">
+  <!-- Turma bar - full width, topo da tela -->
+  <div class="turma-bar">
+    <div class="turma-bar__inner">
+      <div class="turma-bar__label">
+        <span class="turma-bar__emoji">{{ turmaEmoji() }}</span>
+        <span class="turma-bar__text">{{ turmaLabel() }}</span>
+      </div>
+      <div class="turma-bar__actions">
+        <button class="turma-bar__btn" (click)="shareWhatsApp()" aria-label="Compartilhar">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="18" cy="5" r="3"></circle>
             <circle cx="6" cy="12" r="3"></circle>
@@ -14,14 +18,14 @@
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
           </svg>
         </button>
-        <button class="header__help" (click)="showInfoModal.set(true)" aria-label="Como funciona">
+        <button class="turma-bar__btn" (click)="showInfoModal.set(true)" aria-label="Como funciona">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"></circle>
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
           </svg>
         </button>
-        <a class="header__logs" [routerLink]="['/jogo', gameId, 'logs']" aria-label="Histórico">
+        <a class="turma-bar__btn" [routerLink]="['/jogo', gameId, 'logs']" aria-label="Histórico">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
@@ -31,8 +35,13 @@
           </svg>
         </a>
       </div>
-      <span class="header__icon">🏐</span><span style="font-size: 1.2rem" class="header__question">#Sextou do Vôlei</span>
-      <h4 class="header__brand">BORA JOGAR?</h4>
+    </div>
+  </div>
+
+  <main class="container">
+    <!-- Header -->
+    <header class="header">
+      <span class="header__icon">🏐</span>
       <p class="header__location header__location--link" (click)="openMaps()">
         <svg class="header__pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
