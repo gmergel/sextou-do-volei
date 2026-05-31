@@ -197,7 +197,9 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     const g = this.game();
     if (!g) return '';
     const [y, m, d] = g.date.split('-');
-    return `${d}/${m}`;
+    const date = new Date(+y, +m - 1, +d);
+    const weekday = date.toLocaleDateString('pt-BR', { weekday: 'long' }).replace('-feira', '');
+    return `${d}/${m} (${weekday})`;
   }
 
   turmaLabel(): string {
