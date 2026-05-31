@@ -100,12 +100,12 @@
 
   &__brand {
     font-family: var(--font-display);
-    font-size: 2.8rem;
+    font-size: 1.8rem;
     letter-spacing: 2px;
     color: var(--white);
     text-shadow: 2px 3px 8px var(--shadow);
     line-height: 1;
-    margin: 0;
+    margin: 4px 0 0;
   }
 
   &__location {
@@ -172,11 +172,17 @@
   100% { transform: translateY(0) scaleX(1) scaleY(1); }
 }
 
+/* ---- Topbar (badge + botões) ---- */
+.header__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
 /* ---- Botões header (? e logs) ---- */
 .header__actions {
-  position: absolute;
-  top: 16px;
-  right: 0;
   display: flex;
   gap: 8px;
 }
@@ -993,6 +999,41 @@
   }
 }
 
+/* ---- Turma badge ---- */
+.turma-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 24px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  &__emoji {
+    font-size: 1.4rem;
+  }
+
+  &__label {
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+}
+
+.turma-sextou .turma-badge {
+  background: rgba(14, 85, 135, 0.5);
+  border: 1.5px solid rgba(125, 211, 252, 0.5);
+  color: #7dd3fc;
+}
+
+.turma-domingou .turma-badge {
+  background: rgba(135, 75, 10, 0.5);
+  border: 1.5px solid rgba(253, 186, 116, 0.5);
+  color: #fdba74;
+}
+
 /* ---- Turma color overrides ---- */
 .turma-sextou .overlay {
   background: linear-gradient(
@@ -1004,10 +1045,6 @@
   );
 }
 
-.turma-sextou .header__question {
-  color: #7dd3fc;
-}
-
 .turma-domingou .overlay {
   background: linear-gradient(
     180deg,
@@ -1016,8 +1053,4 @@
     rgba(45, 25, 8, 0.58) 70%,
     rgba(30, 15, 5, 0.70) 100%
   );
-}
-
-.turma-domingou .header__question {
-  color: #fdba74;
 }

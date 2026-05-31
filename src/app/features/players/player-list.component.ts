@@ -206,6 +206,12 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     return TURMAS[g.turma]?.label ?? '#Sextou do Vôlei';
   }
 
+  turmaEmoji(): string {
+    const g = this.game();
+    if (!g) return '🍺';
+    return TURMAS[g.turma]?.emoji ?? '🍺';
+  }
+
   turmaColorClass(): string {
     const g = this.game();
     if (!g) return 'turma-sextou';
