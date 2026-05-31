@@ -310,6 +310,8 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     'Leandro': 1, 'Carlos': 3, 'Carlos da Adri': 3, 'Arthur': 3, 'Gilson': 4,
     'Ger': 5, 'Thiago': 6, 'Dias': 7, 'Wagner': 8,
     'Felipe': 9, 'Carlos da Vanessa': 10, 'Adel': 11, 'Rafa': 12,
+  };
+
   /** Pontuação de habilidade: 1 = ruim, 2 = médio, 3 = bom */
   private readonly PLAYER_RATING: Record<string, number> = {
     'Adri': 1, 'Alcides': 2, 'Arthur': 3, 'Carlos': 3,
