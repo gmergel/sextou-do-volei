@@ -296,19 +296,23 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   private readonly WOMEN = new Set([
     'Michele', 'Dani', 'Raquel', 'Neide', 'Fran', 'Fernanda',
     'Michelle', 'Rosa', 'Rosani', 'Vanessa', 'Adri',
+    'Vanessa do Carlos', 'Vanessa do Felipe', 'Luana', 'Nathi',
   ]);
 
   private readonly WOMEN_RANK: Record<string, number> = {
     'Michelle': 1, 'Dani': 2, 'Neide': 3, 'Fran': 4,
     'Michele': 5, 'Raquel': 6, 'Rosani': 7, 'Fernanda': 8, 'Rosa': 9,
+    'Adri': 10, 'Vanessa do Felipe': 11, 'Vanessa': 11,
+    'Vanessa do Carlos': 12, 'Luana': 13, 'Nathi': 14,
   };
 
   private readonly MEN_RANK: Record<string, number> = {
-    'Leandro': 1, 'Carlos': 2, 'Arthur': 3, 'Gilson': 4,
+    'Leandro': 1, 'Carlos': 3, 'Carlos da Adri': 3, 'Arthur': 3, 'Gilson': 4,
     'Ger': 5, 'Thiago': 6, 'Dias': 7, 'Wagner': 8,
+    'Felipe': 9, 'Carlos da Vanessa': 10, 'Adel': 11, 'Rafa': 12,
   };
 
-  private readonly MUST_SEPARATE = ['Leandro', 'Carlos'];
+  private readonly MUST_SEPARATE = ['Leandro', 'Carlos', 'Carlos da Adri'];
 
   /** PRNG simples baseada na data do jogo — mesma data = mesmos times */
   private seededRng(seed: string): () => number {

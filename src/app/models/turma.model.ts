@@ -48,9 +48,7 @@ export const TURMAS: Record<TurmaId, TurmaConfig> = {
   },
 };
 
-// Por enquanto, ambas as turmas compartilham a mesma lista de jogadores.
-// Futuramente cada turma terá sua própria lista.
-import { DEFAULT_PLAYERS } from './game.model';
+import { DEFAULT_PLAYERS, DOMINGOU_PLAYERS } from './game.model';
 
 TURMAS.sextou.defaultPlayers = DEFAULT_PLAYERS;
-TURMAS.domingou.defaultPlayers = DEFAULT_PLAYERS;
+TURMAS.domingou.defaultPlayers = DOMINGOU_PLAYERS;
