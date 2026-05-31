@@ -425,8 +425,10 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     const address = game.locationAddress ?? this.locationAddresses[game.location] ?? game.location;
     const gameUrl = `https://gmergel.github.io/sextou-do-volei/jogo/${this.gameId}`;
 
+    const turmaLabel = TURMAS[game.turma]?.label ?? '#Sextou do Vôlei';
+
     const lines = [
-      `🏐 *Sextou do Vôlei* — ${d}/${m} às ${game.time}`,
+      `🏐 *${turmaLabel}* — ${d}/${m} às ${game.time}`,
       `📍 ${game.location}`,
       address,
     ];
