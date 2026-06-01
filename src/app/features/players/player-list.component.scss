@@ -74,7 +74,7 @@
 
 .container {
   position: relative;
-  z-index: 2;
+  z-index: 5;
   max-width: 480px;
   margin: 0 auto;
   padding: 16px 16px 40px;
@@ -87,13 +87,17 @@
 .header {
   text-align: center;
   position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  margin-top: -20px;
 
   &__icon {
     font-size: 2.2rem;
+    position: relative;
+    z-index: 5;
     animation: bounce 1.8s cubic-bezier(0.25, 0, 0.35, 1) infinite;
   }
 
@@ -159,14 +163,14 @@
 
 @keyframes bounce {
   0%   { transform: translateY(0) scaleX(1) scaleY(1); }
-  10%  { transform: translateY(-24px) scaleX(0.95) scaleY(1.05); }
-  20%  { transform: translateY(-22px) scaleX(0.97) scaleY(1.03); }
-  35%  { transform: translateY(0) scaleX(1.08) scaleY(0.88); }
-  42%  { transform: translateY(0) scaleX(1.02) scaleY(0.96); }
-  50%  { transform: translateY(-12px) scaleX(0.97) scaleY(1.03); }
-  65%  { transform: translateY(0) scaleX(1.04) scaleY(0.94); }
+  10%  { transform: translateY(-52px) scaleX(0.93) scaleY(1.07); }
+  20%  { transform: translateY(-48px) scaleX(0.95) scaleY(1.05); }
+  35%  { transform: translateY(0) scaleX(1.1) scaleY(0.85); }
+  42%  { transform: translateY(0) scaleX(1.03) scaleY(0.95); }
+  50%  { transform: translateY(-24px) scaleX(0.96) scaleY(1.04); }
+  65%  { transform: translateY(0) scaleX(1.05) scaleY(0.93); }
   72%  { transform: translateY(0) scaleX(1.01) scaleY(0.98); }
-  80%  { transform: translateY(-4px) scaleX(0.99) scaleY(1.01); }
+  80%  { transform: translateY(-8px) scaleX(0.98) scaleY(1.02); }
   90%  { transform: translateY(0) scaleX(1.01) scaleY(0.99); }
   100% { transform: translateY(0) scaleX(1) scaleY(1); }
 }
