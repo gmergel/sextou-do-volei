@@ -65,11 +65,12 @@ export class CreateGameComponent {
     'ASTTI': 'ASTTI, Porto Alegre RS',
     'Arena Beach': 'Arena Beach POA, Avenida Sertório, Porto Alegre RS',
     'LFR Beach': 'LFR Beach, Moinhos de Vento, Porto Alegre RS',
+    'Arena Match Point Beach Sports': 'Arena Match Point Beach Sports, Av. Baltazar de Oliveira Garcia, 1110',
     'Alma Beach': 'Alma Beach Sports, 4º Distrito, Porto Alegre RS',
     'Sogipa': 'Sogipa, Rua Barão de Cotegipe 415, São João, Porto Alegre RS',
   };
 
-  readonly otherLocations = ['Arena Beach', 'LFR Beach', 'Alma Beach', 'Sogipa'];
+  readonly otherLocations = ['Arena Beach', 'LFR Beach', 'Alma Beach', 'Sogipa', 'Arena Match Point Beach Sports'];
 
   get filteredOtherLocations(): string[] {
     if (!this.searchQuery) return this.otherLocations;
