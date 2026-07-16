@@ -144,9 +144,10 @@ export class GameService {
     }, 0);
     const newId = maxId + 1;
     const trimmed = name.trim();
+    const displayName = `${trimmed} (convidado)`;
     const data: PlayerDoc = {
       id: newId,
-      name: trimmed,
+      name: displayName,
       initial: trimmed.charAt(0).toUpperCase(),
       status: 'pending',
       lastChange: null,
