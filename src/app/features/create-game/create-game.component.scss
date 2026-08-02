@@ -412,3 +412,20 @@
     rgba(30, 15, 5, 0.70) 100%
   );
 }
+
+/* ---- Roster status ---- */
+.roster-status {
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.9rem;
+  text-align: center;
+  opacity: 0.8;
+
+  &--error {
+    background: rgba(239, 83, 80, 0.15);
+    border: 1px solid rgba(239, 83, 80, 0.3);
+    color: #ffcdd2;
+    opacity: 1;
+  }
+}

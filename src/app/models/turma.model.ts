@@ -16,6 +16,7 @@ export interface TurmaConfig {
   emoji: string;
   timePresets: TimePreset[];
   defaultPlayers: Player[];
+  currentRosterVersion?: string;
 }
 
 export const TURMAS: Record<TurmaId, TurmaConfig> = {

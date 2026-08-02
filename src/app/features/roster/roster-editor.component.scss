@@ -1,0 +1,295 @@
+.roster-editor {
+  margin-top: 12px;
+
+  &__edit-btn {
+    width: 100%;
+    padding: 10px 16px;
+    border: 1px dashed rgba(255, 255, 255, 0.4);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__panel {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+
+    h4 {
+      margin: 0;
+      font-size: 1rem;
+    }
+  }
+
+  &__close-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 4px 8px;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  &__section {
+    margin-bottom: 12px;
+
+    &--inactive {
+      opacity: 0.7;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 12px;
+    }
+  }
+
+  &__section-title {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.7;
+  }
+
+  &__list {
+    min-height: 40px;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 4px;
+    transition: background 0.15s;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &--inactive {
+      padding: 6px 8px;
+    }
+  }
+
+  &__drag-handle {
+    cursor: grab;
+    opacity: 0.5;
+    font-size: 1.1rem;
+    user-select: none;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  &__drag-placeholder {
+    background: rgba(255, 255, 255, 0.1);
+    border: 2px dashed rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    min-height: 40px;
+    margin-bottom: 4px;
+  }
+
+  &__priority {
+    font-size: 0.75rem;
+    font-weight: 700;
+    opacity: 0.5;
+    min-width: 20px;
+    text-align: center;
+  }
+
+  &__name {
+    flex: 1;
+    font-size: 0.9rem;
+    cursor: default;
+
+    &--inactive {
+      text-decoration: line-through;
+      opacity: 0.6;
+    }
+  }
+
+  &__rename-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: inherit;
+    font-size: 0.9rem;
+    outline: none;
+
+    &:focus {
+      border-color: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  &__actions {
+    display: flex;
+    gap: 2px;
+  }
+
+  &__action-btn {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    opacity: 0.6;
+    transition: opacity 0.15s, background 0.15s;
+
+    &:hover:not(:disabled) {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    &:disabled {
+      opacity: 0.2;
+      cursor: not-allowed;
+    }
+
+    &--remove {
+      color: #ef5350;
+      opacity: 0.8;
+    }
+
+    &--reactivate {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      color: #66bb6a;
+    }
+  }
+
+  &__add {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  &__add-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: inherit;
+    font-size: 0.9rem;
+    outline: none;
+
+    &::placeholder {
+      opacity: 0.5;
+    }
+
+    &:focus {
+      border-color: rgba(255, 255, 255, 0.4);
+    }
+  }
+
+  &__add-btn {
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(76, 175, 80, 0.3);
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.85rem;
+    white-space: nowrap;
+
+    &:hover {
+      background: rgba(76, 175, 80, 0.5);
+    }
+  }
+
+  &__error {
+    display: block;
+    color: #ef5350;
+    font-size: 0.8rem;
+    margin-top: 4px;
+  }
+
+  &__footer {
+    margin-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 12px;
+  }
+
+  &__footer-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+  }
+
+  &__cancel-btn {
+    padding: 8px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 6px;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  }
+
+  &__save-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    background: rgba(33, 150, 243, 0.4);
+    color: inherit;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:hover:not(:disabled) {
+      background: rgba(33, 150, 243, 0.6);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+// CDK drag & drop animations
+.cdk-drag-preview {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  background: rgba(30, 30, 30, 0.95);
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.roster-editor__list.cdk-drop-list-dragging .roster-editor__item:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

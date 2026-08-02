@@ -156,6 +156,26 @@
         }
       </div>
 
+      <!-- Roster -->
+      <div class="form__field">
+        <label class="form__label">Lista de Jogadores</label>
+        @if (rosterLoading()) {
+          <div class="roster-status">Carregando lista...</div>
+        } @else if (rosterError()) {
+          <div class="roster-status roster-status--error">
+            ⚠️ Não foi possível carregar a lista. Verifique sua conexão.
+          </div>
+        } @else if (currentRosterVersion()) {
+          <app-roster-preview [turmaId]="turma" />
+          <app-roster-editor
+            [turmaId]="turma"
+            [currentVersion]="currentRosterVersion()"
+            (saved)="onRosterSaved($event)"
+            (editingChanged)="onRosterEditingChanged($event)"
+          />
+        }
+      </div>
+
       <!-- Submit -->
       <button
         class="form__btn"

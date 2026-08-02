@@ -11,6 +11,7 @@ export interface Game {
   locationAddress?: string;
   totalPlayers: number;
   createdAt: string;
+  rosterVersionId?: string;
 }
 
 export interface Player {

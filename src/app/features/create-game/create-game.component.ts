@@ -4,11 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { GameService } from '../players/game.service';
 import { TurmaId, TURMAS, TurmaConfig } from '../../models/turma.model';
 import { NominatimService, NominatimResult } from './nominatim.service';
+import { RosterService } from '../roster/roster.service';
+import { RosterPreviewComponent } from '../roster/roster-preview.component';
+import { RosterEditorComponent } from '../roster/roster-editor.component';
+import { RosterVersion } from '../../models/roster.model';
 
 @Component({
   selector: 'app-create-game',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, RosterPreviewComponent, RosterEditorComponent],
   templateUrl: './create-game.component.html',
   styleUrl: './create-game.component.scss',
 })
@@ -16,9 +20,16 @@ export class CreateGameComponent {
   private readonly router = inject(Router);
   private readonly gameService = inject(GameService);
   private readonly nominatim = inject(NominatimService);
+  private readonly rosterService = inject(RosterService);
 
   readonly creating = signal(false);
   readonly totalPlayers = 14;
+
+  // Roster state
+  readonly currentRosterVersion = signal<RosterVersion | null>(null);
+  readonly rosterEditing = signal(false);
+  readonly rosterError = signal(false);
+  readonly rosterLoading = signal(false);
 
   // Turma
   turma: TurmaId = 'sextou';
@@ -31,10 +42,40 @@ export class CreateGameComponent {
 
   date = this.getNextGameDay(TURMAS.sextou.dayOfWeek);
 
+  constructor() {
+    this.loadRoster(this.turma);
+  }
+
   onTurmaChange(turma: TurmaId): void {
     this.turma = turma;
     this.date = this.getNextGameDay(TURMAS[turma].dayOfWeek);
     this.timeOption = 'preset1';
+    this.loadRoster(turma);
+  }
+
+  private loadRoster(turmaId: TurmaId): void {
+    this.rosterLoading.set(true);
+    this.rosterError.set(false);
+    this.currentRosterVersion.set(null);
+
+    this.rosterService.getCurrentRoster(turmaId).subscribe({
+      next: (version) => {
+        this.currentRosterVersion.set(version);
+        this.rosterLoading.set(false);
+      },
+      error: () => {
+        this.rosterError.set(true);
+        this.rosterLoading.set(false);
+      },
+    });
+  }
+
+  onRosterSaved(version: RosterVersion): void {
+    this.currentRosterVersion.set(version);
+  }
+
+  onRosterEditingChanged(editing: boolean): void {
+    this.rosterEditing.set(editing);
   }
 
   private getNextGameDay(dayOfWeek: number): string {
@@ -155,7 +196,7 @@ export class CreateGameComponent {
   }
 
   get isValid(): boolean {
-    return !!this.date && !!this.location;
+    return !!this.date && !!this.location && !this.rosterEditing() && !this.rosterError() && !!this.currentRosterVersion();
   }
 
   async onSubmit(): Promise<void> {
@@ -169,6 +210,7 @@ export class CreateGameComponent {
       location: this.location,
       locationAddress: this.locationAddress || undefined,
       totalPlayers: this.totalPlayers,
+      rosterVersionId: this.currentRosterVersion()?.id,
     });
     this.router.navigate(['/jogo', game.uid]);
   }

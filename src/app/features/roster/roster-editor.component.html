@@ -1,0 +1,126 @@
+<div class="roster-editor">
+  @if (!isEditing()) {
+    <button class="roster-editor__edit-btn" type="button" (click)="startEditing()">
+      ✏️ Editar lista
+    </button>
+  } @else {
+    <div class="roster-editor__panel">
+      <div class="roster-editor__header">
+        <h4>Editar Lista de Jogadores</h4>
+        <button class="roster-editor__close-btn" type="button" (click)="cancelEditing()">✕</button>
+      </div>
+
+      <!-- Active Players with drag & drop -->
+      <div class="roster-editor__section">
+        <h5 class="roster-editor__section-title">Ativos ({{ activeCount() }})</h5>
+        <div
+          cdkDropList
+          class="roster-editor__list"
+          (cdkDropListDropped)="onDrop($event)"
+        >
+          @for (player of activePlayers(); track player.id; let i = $index) {
+            <div class="roster-editor__item" cdkDrag>
+              <div class="roster-editor__drag-handle" cdkDragHandle>⠿</div>
+              <span class="roster-editor__priority">{{ i + 1 }}</span>
+
+              @if (editingPlayerId() === player.id) {
+                <input
+                  class="roster-editor__rename-input"
+                  type="text"
+                  [ngModel]="editingPlayerName()"
+                  (ngModelChange)="editingPlayerName.set($event)"
+                  (keyup.enter)="confirmRename(player)"
+                  (keyup.escape)="cancelRename()"
+                  (blur)="confirmRename(player)"
+                />
+              } @else {
+                <span class="roster-editor__name" (dblclick)="startRename(player)">{{ player.name }}</span>
+              }
+
+              <div class="roster-editor__actions">
+                <button
+                  class="roster-editor__action-btn"
+                  type="button"
+                  (click)="moveUp(i)"
+                  [disabled]="i === 0"
+                  title="Mover para cima"
+                >▲</button>
+                <button
+                  class="roster-editor__action-btn"
+                  type="button"
+                  (click)="moveDown(i)"
+                  [disabled]="i === activePlayers().length - 1"
+                  title="Mover para baixo"
+                >▼</button>
+                <button
+                  class="roster-editor__action-btn roster-editor__action-btn--remove"
+                  type="button"
+                  (click)="deactivatePlayer(player)"
+                  title="Remover"
+                >✕</button>
+              </div>
+
+              <div class="roster-editor__drag-placeholder" *cdkDragPlaceholder></div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Add Player -->
+      <div class="roster-editor__add">
+        <input
+          class="roster-editor__add-input"
+          type="text"
+          placeholder="Nome do novo jogador..."
+          [ngModel]="newPlayerName()"
+          (ngModelChange)="newPlayerName.set($event)"
+          (keyup.enter)="addPlayer()"
+        />
+        <button class="roster-editor__add-btn" type="button" (click)="addPlayer()">+ Adicionar</button>
+      </div>
+      @if (newPlayerError()) {
+        <span class="roster-editor__error">{{ newPlayerError() }}</span>
+      }
+
+      <!-- Inactive Players -->
+      @if (inactivePlayers().length > 0) {
+        <div class="roster-editor__section roster-editor__section--inactive">
+          <h5 class="roster-editor__section-title">Inativos ({{ inactivePlayers().length }})</h5>
+          @for (player of inactivePlayers(); track player.id) {
+            <div class="roster-editor__item roster-editor__item--inactive">
+              <span class="roster-editor__name roster-editor__name--inactive">{{ player.name }}</span>
+              <button
+                class="roster-editor__action-btn roster-editor__action-btn--reactivate"
+                type="button"
+                (click)="reactivatePlayer(player)"
+                title="Reativar"
+              >↩ Reativar</button>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Save/Cancel buttons -->
+      <div class="roster-editor__footer">
+        @if (saveError()) {
+          <span class="roster-editor__error">{{ saveError() }}</span>
+        }
+        <div class="roster-editor__footer-actions">
+          <button class="roster-editor__cancel-btn" type="button" (click)="cancelEditing()">Cancelar</button>
+          <button
+            class="roster-editor__save-btn"
+            type="button"
+            (click)="save()"
+            [disabled]="isSaving() || !hasUnsavedChanges()"
+          >
+            @if (isSaving()) {
+              Salvando...
+            } @else {
+              💾 Salvar alterações
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
