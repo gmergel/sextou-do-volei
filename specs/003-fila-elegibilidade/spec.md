@@ -20,8 +20,8 @@ Como jogador elegível, quero poder confirmar minha presença no jogo para garan
 
 **Acceptance Scenarios**:
 
-1. **Given** um jogo recém-criado com 14 vagas e 21 jogadores ativos na turma, **When** o jogador com prioridade 15 tenta confirmar presença, **Then** ele consegue confirmar (pois 14+1=15 elegíveis no momento da criação)
-2. **Given** um jogo recém-criado com 14 vagas e 21 jogadores ativos na turma, **When** o jogador com prioridade 16 tenta confirmar presença, **Then** o botão de confirmação está desabilitado e ele vê um timer indicando quando será elegível
+1. **Given** um jogo recém-criado com 14 vagas e 23 jogadores ativos na turma, **When** o jogador com prioridade 15 tenta confirmar presença, **Then** ele consegue confirmar (pois 14+1=15 elegíveis no momento da criação)
+2. **Given** um jogo recém-criado com 14 vagas e 23 jogadores ativos na turma, **When** o jogador com prioridade 16 tenta confirmar presença, **Then** o botão de confirmação está desabilitado e ele vê um timer indicando quando será elegível
 3. **Given** um jogo recém-criado com 14 vagas e 14 jogadores ativos na turma, **When** qualquer jogador tenta confirmar, **Then** todos conseguem confirmar imediatamente (todos elegíveis)
 
 ---
@@ -36,9 +36,9 @@ Como jogador com prioridade mais baixa na fila, quero que slots adicionais abram
 
 **Acceptance Scenarios**:
 
-1. **Given** um jogo criado há 12 horas com 14 vagas e 21 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** 16 jogadores são elegíveis (14+1+1)
-2. **Given** um jogo criado há 24 horas com 14 vagas e 21 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** 17 jogadores são elegíveis (14+1+2)
-3. **Given** um jogo criado há 72 horas com 14 vagas e 21 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** todos os 21 jogadores são elegíveis (14+1+6=21, cap atingido)
+1. **Given** um jogo criado há 12 horas com 14 vagas e 23 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** 16 jogadores são elegíveis (14+1+1)
+2. **Given** um jogo criado há 24 horas com 14 vagas e 23 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** 17 jogadores são elegíveis (14+1+2)
+3. **Given** um jogo criado há 96 horas com 14 vagas e 23 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** todos os 23 jogadores são elegíveis (14+1+8=23, cap atingido)
 
 ---
 

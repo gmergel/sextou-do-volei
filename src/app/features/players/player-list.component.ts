@@ -294,35 +294,35 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   // ---- Compartilhar lista ----
   private readonly WOMEN = new Set([
-    'Michele', 'Dani', 'Raquel', 'Neide', 'Fran', 'Fernanda',
-    'Michelle', 'Rosa', 'Rosani', 'Vanessa', 'Adri',
+    'Michele', 'Dani Griza', 'Raquel', 'Neide', 'Fran', 'Fernanda',
+    'Michelle', 'Rosa', 'Rosani', 'Vanessa', 'Vanessa Costa', 'Adri',
     'Vanessa do Carlos', 'Vanessa do Felipe', 'Luana', 'Nathi',
   ]);
 
   private readonly WOMEN_RANK: Record<string, number> = {
-    'Michelle': 1, 'Dani': 2, 'Neide': 3, 'Fran': 4,
+    'Michelle': 1, 'Dani Griza': 2, 'Neide': 3, 'Fran': 4,
     'Michele': 5, 'Raquel': 6, 'Rosani': 7, 'Fernanda': 8, 'Rosa': 9,
-    'Adri': 10, 'Vanessa do Felipe': 11, 'Vanessa': 11,
+    'Adri': 10, 'Vanessa do Felipe': 11, 'Vanessa': 11, 'Vanessa Costa': 11,
     'Vanessa do Carlos': 12, 'Luana': 13, 'Nathi': 14,
   };
 
   private readonly MEN_RANK: Record<string, number> = {
-    'Leandro': 1, 'Carlos': 3, 'Carlos da Adri': 3, 'Arthur': 3, 'Gilson': 4,
-    'Ger': 5, 'Thiago': 6, 'Dias': 7, 'Wagner': 8,
+    'Leandro': 1, 'Carlos Serafim': 3, 'Carlos da Adri': 3, 'Arthur': 3, 'Gilson': 4,
+    'Ger': 5, 'Thiago': 6, 'Dias': 7, 'Carlos Alon\u00e7o': 8, 'Wagner': 8,
     'Felipe': 9, 'Carlos da Vanessa': 10, 'Adel': 11, 'Rafa': 12,
   };
 
   /** Pontuação de habilidade: 1 = ruim, 2 = médio, 3 = bom */
   private readonly PLAYER_RATING: Record<string, number> = {
-    'Adri': 1, 'Alcides': 2, 'Arthur': 3, 'Carlos': 3,
-    'Cleber': 1, 'Dani': 3, 'Daniel': 1, 'Dias': 2,
+    'Adri': 1, 'Alcides': 2, 'Arthur': 3, 'Carlos Serafim': 3, 'Carlos Alon\u00e7o': 2,
+    'Cleber': 1, 'Dani Griza': 3, 'Daniel': 1, 'Dias': 2,
     'Felipe': 2, 'Fernanda': 1, 'Fran': 2, 'Ger': 2,
     'Gilson': 3, 'Leandro': 3, 'Michele': 2, 'Michelle': 3,
     'Neide': 3, 'Raquel': 2, 'Rosa': 1, 'Rosani': 1,
-    'Thiago': 3, 'Vanessa': 2, 'Wagner': 2,
+    'Thiago': 3, 'Vanessa': 2, 'Vanessa Costa': 2, 'Wagner': 2,
   };
 
-  private readonly MUST_SEPARATE = ['Leandro', 'Carlos', 'Carlos da Adri'];
+  private readonly MUST_SEPARATE = ['Leandro', 'Carlos Serafim', 'Carlos da Adri'];
 
   /** PRNG simples baseada na data do jogo — mesma data = mesmos times */
   private seededRng(seed: string): () => number {
@@ -348,26 +348,26 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     const teamA: string[] = [];
     const teamB: string[] = [];
 
-    // 1) Regra de ouro: separar Leandro e Carlos
+    // 1) Regra de ouro: separar Leandro e Carlos Serafim
     const swap = rng() < 0.5;
     const leandro = allMen.find(p => p.name === 'Leandro');
-    const carlos = allMen.find(p => p.name === 'Carlos');
-    const remainingMen = allMen.filter(p => p.name !== 'Leandro' && p.name !== 'Carlos');
+    const carlos = allMen.find(p => p.name === 'Carlos Serafim');
+    const remainingMen = allMen.filter(p => p.name !== 'Leandro' && p.name !== 'Carlos Serafim');
     let menPointsA = 0, menPointsB = 0;
     let menCountA = 0, menCountB = 0;
 
     if (leandro && carlos) {
       if (swap) {
-        teamA.push('Carlos'); menPointsA += getRating('Carlos'); menCountA++;
+        teamA.push('Carlos Serafim'); menPointsA += getRating('Carlos Serafim'); menCountA++;
         teamB.push('Leandro'); menPointsB += getRating('Leandro'); menCountB++;
       } else {
         teamA.push('Leandro'); menPointsA += getRating('Leandro'); menCountA++;
-        teamB.push('Carlos'); menPointsB += getRating('Carlos'); menCountB++;
+        teamB.push('Carlos Serafim'); menPointsB += getRating('Carlos Serafim'); menCountB++;
       }
     } else if (leandro) {
       teamA.push('Leandro'); menPointsA += getRating('Leandro'); menCountA++;
     } else if (carlos) {
-      teamA.push('Carlos'); menPointsA += getRating('Carlos'); menCountA++;
+      teamA.push('Carlos Serafim'); menPointsA += getRating('Carlos Serafim'); menCountA++;
     }
 
     // 2) Ordenar homens por rating DESCENDENTE (melhores primeiro) com jitter

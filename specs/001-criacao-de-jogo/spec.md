@@ -16,14 +16,14 @@ O organizador abre o formulário de criação de jogo, seleciona a turma "#Sexto
 
 **Why this priority**: É o fluxo principal e mais frequente — a maioria dos jogos são criados para sexta-feira com configurações padrão.
 
-**Independent Test**: Pode ser testado criando um jogo completo e verificando que o documento é gravado no Firestore com todos os campos corretos e os 21 jogadores da turma inseridos com status "pending".
+**Independent Test**: Pode ser testado criando um jogo completo e verificando que o documento é gravado no Firestore com todos os campos corretos e os 23 jogadores da turma inseridos com status "pending".
 
 **Acceptance Scenarios**:
 
 1. **Given** o organizador está na tela de criação de jogo, **When** seleciona turma "#Sextou do Vôlei", **Then** a próxima sexta-feira é sugerida automaticamente como data
 2. **Given** a turma "#Sextou do Vôlei" está selecionada, **When** visualiza opções de horário, **Then** os presets disponíveis são 19h–21h e 20h–22h
 3. **Given** todos os campos estão preenchidos, **When** confirma a criação, **Then** o jogo é gravado no Firestore com turma, data, horário, local, endereço, capacidade e timestamp de criação
-4. **Given** o jogo foi criado para turma Sextou, **When** a criação é finalizada, **Then** os 21 jogadores fixos da turma são inseridos na sub-collection "players" com status "pending"
+4. **Given** o jogo foi criado para turma Sextou, **When** a criação é finalizada, **Then** os 23 jogadores fixos da turma são inseridos na sub-collection "players" com status "pending"
 
 ---
 
@@ -95,7 +95,7 @@ O organizador ajusta a capacidade máxima de jogadores para um valor diferente d
 - **FR-006**: O sistema DEVE gravar o endereço completo (locationAddress) junto ao local selecionado
 - **FR-007**: O sistema DEVE exibir capacidade de jogadores com valor padrão de 14, permitindo alteração pelo organizador
 - **FR-008**: O sistema DEVE, ao criar o jogo, inserir todos os jogadores fixos da turma com status "pending":
-  - Sextou: 21 jogadores fixos
+  - Sextou: 23 jogadores fixos
   - Domingou: 23 jogadores fixos
 - **FR-009**: O sistema DEVE registrar um timestamp de criação (createdAt) no documento do jogo
 - **FR-010**: O sistema DEVE gravar os seguintes dados no documento do jogo: turma, date, time, location, locationAddress, totalPlayers, createdAt

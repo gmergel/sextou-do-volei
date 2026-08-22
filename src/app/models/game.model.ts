@@ -52,9 +52,9 @@ export interface CheckinLog {
 }
 
 export const DEFAULT_PLAYERS: Player[] = [
-  { id: 1, name: 'Dani', initial: 'D', status: 'pending', lastChange: null },
+  { id: 1, name: 'Dani Griza', initial: 'D', status: 'pending', lastChange: null },
   { id: 2, name: 'Ger', initial: 'G', status: 'pending', lastChange: null },
-  { id: 3, name: 'Carlos', initial: 'C', status: 'pending', lastChange: null },
+  { id: 3, name: 'Carlos Serafim', initial: 'C', status: 'pending', lastChange: null },
   { id: 4, name: 'Raquel', initial: 'R', status: 'pending', lastChange: null },
   { id: 5, name: 'Daniel', initial: 'D', status: 'pending', lastChange: null },
   { id: 6, name: 'Neide', initial: 'N', status: 'pending', lastChange: null },
@@ -65,14 +65,16 @@ export const DEFAULT_PLAYERS: Player[] = [
   { id: 11, name: 'Gilson', initial: 'G', status: 'pending', lastChange: null },
   { id: 12, name: 'Arthur', initial: 'A', status: 'pending', lastChange: null },
   { id: 13, name: 'Fernanda', initial: 'F', status: 'pending', lastChange: null },
-  { id: 14, name: 'Adri', initial: 'A', status: 'pending', lastChange: null },
-  { id: 15, name: 'Michelle', initial: 'M', status: 'pending', lastChange: null },
-  { id: 16, name: 'Rosa', initial: 'R', status: 'pending', lastChange: null },
-  { id: 17, name: 'Rosani', initial: 'R', status: 'pending', lastChange: null },
-  { id: 18, name: 'Cleber', initial: 'C', status: 'pending', lastChange: null },
-  { id: 19, name: 'Felipe', initial: 'F', status: 'pending', lastChange: null },
-  { id: 20, name: 'Vanessa', initial: 'V', status: 'pending', lastChange: null },
-  { id: 21, name: 'Alcides', initial: 'A', status: 'pending', lastChange: null },
+  { id: 14, name: 'Carlos Alon\u00e7o', initial: 'C', status: 'pending', lastChange: null },
+  { id: 15, name: 'Vanessa Costa', initial: 'V', status: 'pending', lastChange: null },
+  { id: 16, name: 'Alcides', initial: 'A', status: 'pending', lastChange: null },
+  { id: 17, name: 'Adri', initial: 'A', status: 'pending', lastChange: null },
+  { id: 18, name: 'Michelle', initial: 'M', status: 'pending', lastChange: null },
+  { id: 19, name: 'Rosa', initial: 'R', status: 'pending', lastChange: null },
+  { id: 20, name: 'Rosani', initial: 'R', status: 'pending', lastChange: null },
+  { id: 21, name: 'Cleber', initial: 'C', status: 'pending', lastChange: null },
+  { id: 22, name: 'Felipe', initial: 'F', status: 'pending', lastChange: null },
+  { id: 23, name: 'Vanessa', initial: 'V', status: 'pending', lastChange: null },
 ];
 
 export const DOMINGOU_PLAYERS: Player[] = [
@@ -85,7 +87,7 @@ export const DOMINGOU_PLAYERS: Player[] = [
   { id: 7, name: 'Carlos da Adri', initial: 'C', status: 'pending', lastChange: null },
   { id: 8, name: 'Neide', initial: 'N', status: 'pending', lastChange: null },
   { id: 9, name: 'Leandro', initial: 'L', status: 'pending', lastChange: null },
-  { id: 10, name: 'Dani', initial: 'D', status: 'pending', lastChange: null },
+  { id: 10, name: 'Dani Griza', initial: 'D', status: 'pending', lastChange: null },
   { id: 11, name: 'Ger', initial: 'G', status: 'pending', lastChange: null },
   { id: 12, name: 'Dias', initial: 'D', status: 'pending', lastChange: null },
   { id: 13, name: 'Raquel', initial: 'R', status: 'pending', lastChange: null },

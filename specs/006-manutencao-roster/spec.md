@@ -30,7 +30,7 @@ Como organizador, ao abrir a tela de criação de jogo e selecionar uma turma, q
 
 **Acceptance Scenarios**:
 
-1. **Given** um organizador na tela "Novo Jogo" com a turma "Sextou" selecionada e uma versão vigente do roster com 21 jogadores ativos, **When** a tela carrega, **Then** ele vê o preview "21 jogadores ativos | Versão de 01/08/2026" e a lista de nomes ordenada por prioridade
+1. **Given** um organizador na tela "Novo Jogo" com a turma "Sextou" selecionada e uma versão vigente do roster com 23 jogadores ativos, **When** a tela carrega, **Then** ele vê o preview "23 jogadores ativos | Versão de 01/08/2026" e a lista de nomes ordenada por prioridade
 2. **Given** um organizador na tela "Novo Jogo" com a turma "Domingou" selecionada e roster com 3 jogadores inativos, **When** a tela carrega, **Then** o preview mostra apenas a contagem de jogadores ativos (exclui inativos) e jogadores inativos não aparecem na lista principal
 3. **Given** um organizador na tela "Novo Jogo" e nenhuma versão do roster existe para a turma selecionada, **When** a tela carrega, **Then** o sistema realiza seeding automático a partir dos dados hardcoded, cria a versão 1 e exibe o preview normalmente
 
@@ -66,7 +66,7 @@ Como organizador, quero poder adicionar novos jogadores ao final da lista e remo
 
 **Acceptance Scenarios**:
 
-1. **Given** o modo de edição aberto com 21 jogadores ativos, **When** o organizador digita "Paulo" no campo de novo jogador e confirma, **Then** "Paulo" aparece na posição 22 (final da lista) com status ativo
+1. **Given** o modo de edição aberto com 23 jogadores ativos, **When** o organizador digita "Paulo" no campo de novo jogador e confirma, **Then** "Paulo" aparece na posição 24 (final da lista) com status ativo
 2. **Given** o modo de edição aberto, **When** o organizador tenta adicionar um jogador com nome "A" (1 caractere), **Then** uma mensagem de validação informa que o nome deve ter pelo menos 2 caracteres
 3. **Given** o modo de edição aberto com "João" já na lista, **When** o organizador tenta adicionar outro "João", **Then** uma mensagem de validação informa que já existe um jogador com esse nome na turma
 4. **Given** o modo de edição aberto, **When** o organizador clica em "Remover" no jogador "Maria", **Then** "Maria" é marcada como inativa (soft delete) — ela aparece em seção separada de "Inativos" e não conta na lista de ativos

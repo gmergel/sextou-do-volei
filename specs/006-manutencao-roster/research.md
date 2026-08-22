@@ -92,7 +92,7 @@
 **Decision**: Na primeira leitura do roster (quando `turmas/{turmaId}/roster-versions/` está vazia), criar automaticamente a versão 1 a partir dos arrays `DEFAULT_PLAYERS` e `DOMINGOU_PLAYERS` em `game.model.ts`.
 
 **Rationale**:
-- Dados hardcoded já existem em `src/app/models/game.model.ts` — 21 jogadores (Sextou) e 24 jogadores (Domingou)
+- Dados hardcoded já existem em `src/app/models/game.model.ts` — 23 jogadores (Sextou) e 24 jogadores (Domingou)
 - IDs numéricos existentes (1-21, 1-24) serão convertidos para strings estáveis ("1", "2", ...) no seeding
 - Seeding ocorre client-side (no service) para manter arquitetura serverless
 - Flag `deviceInfo: { source: "Sistema" }` identifica versão de migração
