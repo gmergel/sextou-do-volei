@@ -93,7 +93,7 @@
           <span class="counters__share-hint">📋 copiar lista</span>
         </div>
         <div class="counters__badge counters__badge--pending">
-          <span class="counters__number">{{ players().length - confirmedCount() - declinedCount() }}</span>
+          <span class="counters__number">{{ players().length - confirmedCount() - declinedCount() - interestedCount() }}</span>
           <span class="counters__label">sem resposta</span>
         </div>
         <div class="counters__badge counters__badge--declined">
@@ -110,6 +110,14 @@
       </p>
     } @else {
       <p class="section-label">{{ players().length }} jogadores convidados</p>
+      @if (interestedCount() > 0) {
+        <p class="interest-summary" aria-live="polite">
+          🙋 {{ interestedCount() }} {{ interestedCount() === 1 ? 'pessoa aguardando vaga' : 'pessoas aguardando vaga' }}
+        </p>
+      }
+      @if (interestError()) {
+        <p class="interest-error" role="alert">{{ interestError() }}</p>
+      }
     }
 
     <!-- Lista de jogadores -->
@@ -133,10 +141,17 @@
         <li class="player-list__item"
           [class.player-list__item--confirmed]="player.status === 'confirmed'"
           [class.player-list__item--declined]="player.status === 'declined'"
+          [class.player-list__item--interested]="player.status === 'pending' && player.interested"
+          [class.player-list__item--error]="actionErrors().has(player.id)"
         >
           <!-- Nome -->
           <span class="player-info">
             <span class="player-info__name">{{ player.name }}</span>
+            @if (actionErrors().has(player.id)) {
+              <span class="player-info__error" role="alert">{{ actionErrors().get(player.id) }}</span>
+            } @else if (player.interested && player.status === 'pending') {
+              <span class="player-info__interest">AGUARDANDO</span>
+            }
             @if (player.lastChange) {
               <span class="player-info__timestamp">
                 {{ player.lastChange | date:'dd/MM HH:mm:ss' }}
@@ -147,12 +162,12 @@
           <!-- Ações -->
           <div class="player-actions" role="group" [attr.aria-label]="'Resposta de ' + player.name">
             @if (player.status !== 'declined') {
-              @if (canInteract(player)) {
+              @if (!canRegisterInterest(player)) {
                 <button
                   class="action-btn action-btn--yes"
                   [class.action-btn--active]="player.status === 'confirmed'"
                   [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
-                  [disabled]="isFull() && player.status !== 'confirmed'"
+                  [disabled]="savingActions().has(player.id) || (isFull() && player.status !== 'confirmed')"
                   (click)="setStatus(player.id, 'confirmed')"
                   [attr.aria-pressed]="player.status === 'confirmed'"
                   [attr.aria-label]="isFull() && player.status !== 'confirmed' ? 'Elenco completo' : 'Vou jogar'"
@@ -164,14 +179,19 @@
                 </button>
               } @else {
                 <button
-                  class="action-btn action-btn--yes action-btn--wait"
-                  (click)="showWaitAlert(player.effectiveId ?? player.id)"
-                  aria-label="Aguarde para confirmar"
+                  class="action-btn action-btn--interest"
+                  [class.action-btn--active]="player.interested"
+                  [disabled]="savingActions().has(player.id)"
+                  (click)="toggleInterest(player)"
+                  [attr.aria-pressed]="!!player.interested"
+                  [attr.aria-label]="player.interested ? 'Cancelar interesse' : 'Tenho interesse na vaga'"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M9 11V4a1.5 1.5 0 0 1 3 0v6h5a3 3 0 0 1 3 3v3a5.5 5.5 0 0 1-5.5 5.5h-2.7a6 6 0 0 1-4.6-2.1l-2-2.3a3 3 0 0 1 .3-4.2L9 10"></path>
+                    <path d="M12 10v2.5a1.5 1.5 0 0 0 3 0V10m0 2.5a1.5 1.5 0 0 0 3 0v-2"></path>
+                    <path d="M7.5 13.5h4a1.8 1.8 0 0 1 0 3.6H9"></path>
                   </svg>
+                  <span>Quero</span>
                 </button>
               }
             }
@@ -180,6 +200,7 @@
               <button
                 class="action-btn action-btn--no"
                 [class.action-btn--active]="player.status === 'declined'"
+                [disabled]="savingActions().has(player.id)"
                 (click)="setStatus(player.id, 'declined')"
                 [attr.aria-pressed]="player.status === 'declined'"
                 aria-label="Não posso"
@@ -204,9 +225,16 @@
             <li class="player-list__item player-list__item--guest"
               [class.player-list__item--confirmed]="player.status === 'confirmed'"
               [class.player-list__item--declined]="player.status === 'declined'"
+              [class.player-list__item--interested]="player.status === 'pending' && player.interested"
+              [class.player-list__item--error]="actionErrors().has(player.id)"
             >
               <span class="player-info">
                 <span class="player-info__name">{{ player.name }}</span>
+                @if (actionErrors().has(player.id)) {
+                  <span class="player-info__error" role="alert">{{ actionErrors().get(player.id) }}</span>
+                } @else if (player.interested && player.status === 'pending') {
+                  <span class="player-info__interest">AGUARDANDO</span>
+                }
                 @if (player.lastChange) {
                   <span class="player-info__timestamp">
                     {{ player.lastChange | date:'dd/MM HH:mm:ss' }}
@@ -215,12 +243,12 @@
               </span>
               <div class="player-actions" role="group">
                 @if (player.status !== 'declined') {
-                  @if (canInteract(player)) {
+                  @if (!canRegisterInterest(player)) {
                     <button
                       class="action-btn action-btn--yes"
                       [class.action-btn--active]="player.status === 'confirmed'"
                       [class.action-btn--locked]="isFull() && player.status !== 'confirmed'"
-                      [disabled]="isFull() && player.status !== 'confirmed'"
+                      [disabled]="savingActions().has(player.id) || (isFull() && player.status !== 'confirmed')"
                       (click)="setStatus(player.id, 'confirmed')"
                       [attr.aria-pressed]="player.status === 'confirmed'"
                     >
@@ -231,14 +259,19 @@
                     </button>
                   } @else {
                     <button
-                      class="action-btn action-btn--yes action-btn--wait"
-                      (click)="showWaitAlert(player.id)"
-                      aria-label="Aguarde para confirmar"
+                      class="action-btn action-btn--interest"
+                      [class.action-btn--active]="player.interested"
+                      [disabled]="savingActions().has(player.id)"
+                      (click)="toggleInterest(player)"
+                      [attr.aria-pressed]="!!player.interested"
+                      [attr.aria-label]="player.interested ? 'Cancelar interesse' : 'Tenho interesse na vaga'"
                     >
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M9 11V4a1.5 1.5 0 0 1 3 0v6h5a3 3 0 0 1 3 3v3a5.5 5.5 0 0 1-5.5 5.5h-2.7a6 6 0 0 1-4.6-2.1l-2-2.3a3 3 0 0 1 .3-4.2L9 10"></path>
+                        <path d="M12 10v2.5a1.5 1.5 0 0 0 3 0V10m0 2.5a1.5 1.5 0 0 0 3 0v-2"></path>
+                        <path d="M7.5 13.5h4a1.8 1.8 0 0 1 0 3.6H9"></path>
                       </svg>
+                      <span>Quero</span>
                     </button>
                   }
                 }
@@ -247,6 +280,7 @@
                   <button
                     class="action-btn action-btn--no"
                     [class.action-btn--active]="player.status === 'declined'"
+                    [disabled]="savingActions().has(player.id)"
                     (click)="setStatus(player.id, 'declined')"
                     [attr.aria-pressed]="player.status === 'declined'"
                   >
@@ -259,6 +293,7 @@
                 }
                 <button
                   class="action-btn action-btn--remove"
+                  [disabled]="savingActions().has(player.id)"
                   (click)="removeGuest(player.id)"
                   aria-label="Remover convidado"
                 >
@@ -330,6 +365,23 @@
   </div>
 }
 
+<!-- Modal Interesse registrado -->
+@if (showInterestModal()) {
+  <div class="modal-backdrop" (click)="showInterestModal.set(false)">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <span class="modal__emoji">🙋</span>
+      <h3 class="modal__title">Interesse registrado</h3>
+      <p class="modal__text">
+        Você ainda não está confirmado e a vaga não está garantida.
+      </p>
+      <p class="modal__text">
+        Quando você estiver elegível e houver vaga, sua presença será <strong>confirmada automaticamente</strong>, seguindo a ordem da fila.
+      </p>
+      <button class="modal__btn" (click)="showInterestModal.set(false)">Entendi</button>
+    </div>
+  </div>
+}
+
 <!-- Modal Outro Jogador -->
 @if (showGuestModal()) {
   <div class="modal-backdrop" (click)="closeGuestModal()">
@@ -396,7 +448,7 @@
           Os jogadores têm uma ordem baseada em <strong>antiguidade no grupo</strong> e <strong>frequência nos jogos</strong>.
         </p>
         <p class="info-section__text">
-          Os primeiros <strong>{{ totalPlayers() }}</strong> da lista podem confirmar na hora. Os demais entram na <strong>fila de espera</strong> — a cada 12h, mais uma vaga abre.
+          Os primeiros <strong>{{ totalPlayers() }}</strong> da lista podem confirmar na hora. Os demais entram na <strong>fila de espera</strong> — a cada 4h, mais uma vaga abre.
         </p>
       </div>
 
@@ -404,6 +456,13 @@
         <h4 class="info-section__title">⚡ A fila anda rápido</h4>
         <p class="info-section__text">
           Cada jogador prioritário que diz <strong>"Não"</strong> libera uma vaga imediatamente para o próximo da fila.
+        </p>
+      </div>
+
+      <div class="info-section">
+        <h4 class="info-section__title">🙋 Interesse na vaga</h4>
+        <p class="info-section__text">
+          Enquanto aguarda sua vez, você pode registrar interesse. Isso <strong>não garante uma vaga</strong>. Ao ficar elegível e haver vaga, sua presença será confirmada automaticamente, pela ordem da fila, enquanto alguém estiver com a lista aberta e conectado.
         </p>
       </div>
 

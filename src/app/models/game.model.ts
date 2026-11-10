@@ -20,6 +20,7 @@ export interface Player {
   initial: string;
   status: PlayerStatus;
   lastChange: Date | null;
+  interested?: boolean;
   guest?: boolean;
   effectiveId?: number;
 }
@@ -30,6 +31,7 @@ export interface PlayerDoc {
   initial: string;
   status: PlayerStatus;
   lastChange: string | null;
+  interested?: boolean;
   guest?: boolean;
   effectiveId?: number;
 }
@@ -38,6 +40,7 @@ export type LogType = 'status_change' | 'slot_opened' | 'game_full' | 'game_reop
 
 export interface CheckinLog {
   type?: LogType;
+  origin?: 'automatic';
   playerId: number;
   playerName: string;
   previousStatus: PlayerStatus;

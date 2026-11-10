@@ -3,9 +3,12 @@ import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Player, PlayerStatus, Game } from '../../models/game.model';
+import { Player, Game } from '../../models/game.model';
 import { TURMAS } from '../../models/turma.model';
 import { GameService } from './game.service';
+import { eligiblePlayerIds, isPlayerEligible, SLOT_INTERVAL_MS } from './eligibility';
+
+type OptimisticResponse = Pick<Player, 'status' | 'interested' | 'lastChange' | 'effectiveId'>;
 
 @Component({
   selector: 'app-player-list',
@@ -18,49 +21,32 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly gameService = inject(GameService);
   private subscription?: Subscription;
+  private gameSubscription?: Subscription;
   private eligibilityTimer?: ReturnType<typeof setInterval>;
+  private autoConfirmInProgress = false;
+  private lastAutoConfirmFailure = 0;
+  private destroyed = false;
 
   gameId = '';
   readonly game = signal<Game | null>(null);
   readonly players = signal<Player[]>([]);
+  private readonly optimisticResponses = signal<Map<number, OptimisticResponse>>(new Map());
+  readonly displayedPlayers = computed(() => this.players().map(player => {
+    const response = this.optimisticResponses().get(player.id);
+    return response ? { ...player, ...response } : player;
+  }));
   readonly loading = signal(true);
   private readonly now = signal(Date.now());
 
   readonly totalPlayers = computed(() => this.game()?.totalPlayers ?? 14);
 
-  private readonly SLOT_INTERVAL_MS = 12 * 60 * 60 * 1000; // 12 horas
+  private readonly SLOT_INTERVAL_MS = SLOT_INTERVAL_MS;
 
   /** Conjunto de IDs de jogadores habilitados a confirmar neste momento */
   readonly eligibleIds = computed(() => {
     const game = this.game();
     if (!game) return new Set<number>();
-    const createdAt = new Date(game.createdAt).getTime();
-    const elapsed = Math.max(0, this.now() - createdAt);
-    const baseSlots = game.totalPlayers + Math.floor(elapsed / this.SLOT_INTERVAL_MS);
-    const players = this.players();
-
-    // Ordena todos por ID para posição na fila
-    const sorted = [...players].sort((a, b) => a.id - b.id);
-    const eligible = new Set<number>();
-
-    // Cada slot habilita o próximo da fila;
-    // cada decline dentro dos habilitados libera +1 slot
-    let slots = baseSlots;
-    let prev = -1;
-    while (eligible.size !== prev) {
-      prev = eligible.size;
-      eligible.clear();
-      let used = 0;
-      for (const p of sorted) {
-        if (used >= slots) break;
-        eligible.add(p.id);
-        used++;
-      }
-      // Recalcula slots: base + declines dentro dos elegíveis
-      const declined = sorted.filter(p => eligible.has(p.id) && p.status === 'declined').length;
-      slots = baseSlots + declined;
-    }
-    return eligible;
+    return eligiblePlayerIds(game, this.players(), this.now());
   });
 
   /** Maior id elegível (compat) */
@@ -70,28 +56,130 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   });
 
   readonly confirmedCount = computed(() =>
-    this.players().filter((p) => p.status === 'confirmed').length);
+    this.displayedPlayers().filter((p) => p.status === 'confirmed').length);
+
+  readonly interestedCount = computed(() =>
+    this.displayedPlayers().filter((p) => p.status === 'pending' && p.interested).length);
 
   readonly declinedCount = computed(() =>
-    this.players().filter((p) => p.status === 'declined').length);
+    this.displayedPlayers().filter((p) => p.status === 'declined').length);
+
+  private readonly savedConfirmedCount = computed(() =>
+    this.players().filter(player => player.status === 'confirmed').length);
 
   readonly isFull = computed(() => this.confirmedCount() >= this.totalPlayers());
+  readonly savingActions = signal<Map<number, 'confirmed' | 'declined' | 'interest'>>(new Map());
+  readonly actionErrors = signal<Map<number, string>>(new Map());
+  readonly interestError = signal('');
 
   canInteract(player: Player): boolean {
     if (player.status === 'confirmed') return true;
+    return isPlayerEligible(player, this.eligibleIds());
+  }
+
+  private async confirmWaitingPlayers(): Promise<void> {
+    if (this.destroyed || this.loading() || this.autoConfirmInProgress ||
+        Date.now() - this.lastAutoConfirmFailure < 5000 ||
+        this.savedConfirmedCount() >= this.totalPlayers()) return;
     const eligible = this.eligibleIds();
-
-    // Se tem effectiveId (penalidade por ter declinado e alguém aproveitou),
-    // verifica ambos: id original E effectiveId — basta um ser elegível
-    if (player.effectiveId && player.effectiveId > player.id) {
-      return eligible.has(player.id) || eligible.has(player.effectiveId);
+    if (!this.players().some(player =>
+      player.status === 'pending' && player.interested && isPlayerEligible(player, eligible),
+    )) return;
+    this.autoConfirmInProgress = true;
+    try {
+      await this.gameService.confirmInterestedPlayers(this.gameId);
+      this.interestError.set('');
+    } catch (error) {
+      console.error('Falha ao confirmar interessados automaticamente.', error);
+      this.lastAutoConfirmFailure = Date.now();
+      this.interestError.set('Não foi possível confirmar os interessados. Tentaremos novamente.');
+    } finally {
+      this.autoConfirmInProgress = false;
     }
+  }
 
-    return eligible.has(player.id);
+  canRegisterInterest(player: Player): boolean {
+    return player.status === 'pending' && (!!player.interested || !this.canInteract(player) || this.isFull());
+  }
+
+  async toggleInterest(player: Player): Promise<void> {
+    const savedPlayer = this.players().find(item => item.id === player.id);
+    if (!savedPlayer) return;
+    player = savedPlayer;
+    const canCancelExistingInterest = player.status === 'pending' && !!player.interested;
+    if (
+      (!this.canRegisterInterest(player) && !canCancelExistingInterest) ||
+      this.savingActions().has(player.id)
+    ) return;
+
+    this.setSavingAction(player.id, 'interest');
+    const registeringInterest = !player.interested;
+    this.previewResponse(player.id, {
+      status: player.status, lastChange: player.lastChange,
+      effectiveId: player.effectiveId, interested: registeringInterest,
+    });
+    this.interestError.set('');
+
+    try {
+      const saved = await this.gameService.setPlayerInterest(this.gameId, player.id, registeringInterest);
+      this.acceptSavedResponse(player, saved);
+      if (registeringInterest) this.showInterestModal.set(true);
+    } catch (error) {
+      console.error('Falha ao atualizar interesse.', error);
+      this.actionErrors.update(current => new Map(current).set(player.id, 'Não foi possível enviar. Tente novamente.'));
+    } finally {
+      this.clearPreview(player.id);
+      this.setSavingAction(player.id);
+    }
+  }
+
+  private previewResponse(playerId: number, response: OptimisticResponse): void {
+    this.optimisticResponses.update(current => new Map(current).set(playerId, response));
+  }
+
+  private clearPreview(playerId: number): void {
+    this.optimisticResponses.update(current => {
+      const next = new Map(current);
+      next.delete(playerId);
+      return next;
+    });
+  }
+
+  private acceptSavedResponse(original: Player, saved: Player): void {
+    // Não sobrescreve uma mudança recebida em tempo real durante a requisição.
+    this.players.update(players => players.map(current => {
+      if (current.id !== original.id ||
+          current.status !== original.status ||
+          !!current.interested !== !!original.interested ||
+          current.lastChange?.getTime() !== original.lastChange?.getTime() ||
+          current.effectiveId !== original.effectiveId) return current;
+      return { ...current, status: saved.status, interested: saved.interested,
+        lastChange: saved.lastChange, effectiveId: saved.effectiveId };
+    }));
+  }
+
+  private setSavingAction(playerId: number, action?: 'confirmed' | 'declined' | 'interest'): void {
+    this.savingActions.update(current => {
+      const next = new Map(current);
+      if (action) next.set(playerId, action);
+      else next.delete(playerId);
+      return next;
+    });
+    if (action) {
+      this.actionErrors.update(current => {
+        const next = new Map(current);
+        next.delete(playerId);
+        return next;
+      });
+    }
   }
 
   async ngOnInit(): Promise<void> {
     this.gameId = this.route.snapshot.params['gameId'];
+
+    void this.gameService.prepareGameActions(this.gameId).catch(error => {
+      console.warn('Não foi possível preparar as ações antecipadamente. O clique tentará novamente.', error);
+    });
 
     const game = await this.gameService.getGame(this.gameId);
     if (!game) {
@@ -100,25 +188,45 @@ export class PlayerListComponent implements OnInit, OnDestroy {
     this.game.set(game);
 
     // Atualiza elegibilidade a cada 1s
-    this.eligibilityTimer = setInterval(() => this.now.set(Date.now()), 1000);
+    this.eligibilityTimer = setInterval(() => {
+      this.now.set(Date.now());
+      void this.confirmWaitingPlayers();
+    }, 1000);
+
+    this.gameSubscription = this.gameService.game$(this.gameId).subscribe({
+      next: game => {
+        if (game) {
+          this.game.set({ ...game, turma: game.turma || 'sextou' });
+          void this.confirmWaitingPlayers();
+        }
+      },
+      error: error => {
+        console.error('Falha ao acompanhar o jogo.', error);
+        this.interestError.set('Não foi possível atualizar o jogo. Recarregue a página.');
+      },
+    });
 
     this.subscription = this.gameService.players$(this.gameId).subscribe((players) => {
       this.players.set(players.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR')));
       this.loading.set(false);
+      void this.confirmWaitingPlayers();
     });
   }
 
   ngOnDestroy(): void {
+    this.destroyed = true;
     this.subscription?.unsubscribe();
+    this.gameSubscription?.unsubscribe();
     if (this.eligibilityTimer) clearInterval(this.eligibilityTimer);
   }
 
-  setStatus(playerId: number, status: PlayerStatus): void {
+  setStatus(playerId: number, status: 'confirmed' | 'declined'): void {
     const player = this.players().find((p) => p.id === playerId);
-    if (!player) return;
+    if (!player || this.savingActions().has(playerId)) return;
     // Ineligible players can only decline
     if (!this.canInteract(player) && status !== 'declined') return;
-    if (status === 'confirmed' && this.isFull() && player.status !== 'confirmed') return;
+    if (status === 'confirmed' && player.status !== 'confirmed' &&
+        Math.max(this.confirmedCount(), this.savedConfirmedCount()) >= this.totalPlayers()) return;
     const newStatus = player.status === status ? 'pending' : status;
 
     // Ao voltar atrás de um "Não", verifica se alguém já aproveitou a vaga
@@ -136,8 +244,16 @@ export class PlayerListComponent implements OnInit, OnDestroy {
       // Se ninguém confirmou, volta sem penalidade
     }
 
-    this.gameService.updateStatus(this.gameId, player, newStatus, effectiveId).then(() => {
-      const confirmed = this.confirmedCount();
+    this.setSavingAction(playerId, status);
+    this.previewResponse(playerId, {
+      status: newStatus, interested: false,
+      lastChange: newStatus === 'pending' ? null : new Date(),
+      effectiveId: effectiveId ?? player.effectiveId,
+    });
+    this.interestError.set('');
+    this.gameService.updateStatus(this.gameId, player, newStatus, effectiveId).then(saved => {
+      this.acceptSavedResponse(player, saved);
+      const confirmed = this.savedConfirmedCount();
       const total = this.totalPlayers();
 
       // Vaga liberada: jogador saiu de confirmed (desconfirmou) ou declinou
@@ -160,6 +276,14 @@ export class PlayerListComponent implements OnInit, OnDestroy {
         this.gameService.addEventLog(this.gameId, 'game_reopened',
           `Vaga reaberta (${confirmed}/${total})`);
       }
+    }).catch(error => {
+      console.error('Falha ao atualizar presença.', error);
+      this.actionErrors.update(current => new Map(current).set(
+        playerId, 'Não foi possível enviar. Verifique a vaga e tente novamente.',
+      ));
+    }).finally(() => {
+      this.clearPreview(playerId);
+      this.setSavingAction(playerId);
     });
   }
 
@@ -167,30 +291,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   private eligibleIdsWithout(excludeId: number): Set<number> {
     const game = this.game();
     if (!game) return new Set();
-    const createdAt = new Date(game.createdAt).getTime();
-    const elapsed = Math.max(0, this.now() - createdAt);
-    const baseSlots = game.totalPlayers + Math.floor(elapsed / this.SLOT_INTERVAL_MS);
-    const players = this.players();
-    const sorted = [...players].sort((a, b) => a.id - b.id);
-    const eligible = new Set<number>();
-
-    let slots = baseSlots;
-    let prev = -1;
-    while (eligible.size !== prev) {
-      prev = eligible.size;
-      eligible.clear();
-      let used = 0;
-      for (const p of sorted) {
-        if (used >= slots) break;
-        eligible.add(p.id);
-        used++;
-      }
-      const declined = sorted.filter(
-        p => eligible.has(p.id) && p.id !== excludeId && p.status === 'declined'
-      ).length;
-      slots = baseSlots + declined;
-    }
-    return eligible;
+    return eligiblePlayerIds(game, this.players(), this.now(), excludeId);
   }
 
   formatGameDate(): string {
@@ -222,6 +323,7 @@ export class PlayerListComponent implements OnInit, OnDestroy {
 
   readonly showModal = signal(false);
   readonly showWaitModal = signal(false);
+  readonly showInterestModal = signal(false);
   readonly showInfoModal = signal(false);
   readonly showShareModal = signal(false);
   readonly shareCopied = signal(false);
@@ -497,11 +599,11 @@ export class PlayerListComponent implements OnInit, OnDestroy {
   readonly showGuestModal = signal(false);
 
   readonly regularPlayers = computed(() =>
-    this.players().filter(p => !p.guest)
+    this.displayedPlayers().filter(p => !p.guest)
   );
 
   readonly guestPlayers = computed(() =>
-    this.players().filter(p => p.guest)
+    this.displayedPlayers().filter(p => p.guest)
   );
 
   openGuestModal(): void {

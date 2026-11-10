@@ -64,18 +64,20 @@
                     <div class="timeline__row-main">
                       <span class="timeline__icon">{{ statusIcon(log.newStatus) }}</span>
                       <span class="timeline__name">{{ log.playerName }}</span>
-                      <span class="timeline__action">{{ statusLabel(log.newStatus) }}</span>
+                      <span class="timeline__action">{{ log.origin === 'automatic' ? 'Confirmado automaticamente' : statusLabel(log.newStatus) }}</span>
                     </div>
                     <div class="timeline__row-meta">
                       <span class="timeline__time">{{ log.timestamp | date:'HH:mm:ss' }}</span>
                       <span class="timeline__transition">{{ statusLabel(log.previousStatus) }} → {{ statusLabel(log.newStatus) }}</span>
                     </div>
-                    <div class="timeline__row-device">
-                      <span class="timeline__device">📱 {{ log.deviceModel || parseDevice(log.userAgent) }}</span>
-                      @if (log.ip) {
-                        <span class="timeline__ip">{{ log.ip }}</span>
-                      }
-                    </div>
+                    @if (log.origin !== 'automatic') {
+                      <div class="timeline__row-device">
+                        <span class="timeline__device">📱 {{ log.deviceModel || parseDevice(log.userAgent) }}</span>
+                        @if (log.ip) {
+                          <span class="timeline__ip">{{ log.ip }}</span>
+                        }
+                      </div>
+                    }
                     @if (log.deviceModel && parseDevice(log.userAgent) !== '—') {
                       <div class="timeline__row-extra">
                         <span class="timeline__browser">🌐 {{ parseDevice(log.userAgent) }}</span>

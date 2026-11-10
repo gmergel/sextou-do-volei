@@ -300,7 +300,8 @@
 }
 
 /* ---- Label da seção ---- */
-.section-label {
+.section-label,
+.interest-summary {
   font-size: 0.75rem;
   font-weight: 600;
   color: rgba(252, 232, 195, 0.55);
@@ -308,6 +309,23 @@
   letter-spacing: 0.8px;
   margin-bottom: -10px;
   text-align: center;
+}
+
+.interest-error {
+  margin: -12px 0 0;
+  color: rgba(252, 232, 195, 0.8);
+  font-size: 0.82rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.interest-summary {
+  margin: -12px 0 0;
+  line-height: 1.4;
+}
+
+.interest-error {
+  color: #ffbcad;
 }
 
 /* ---- Player list ---- */
@@ -341,6 +359,16 @@
     background: rgba(199, 77, 60, 0.28);
     border-color: rgba(217, 80, 64, 0.6);
   }
+
+  &--interested {
+    background: rgba(245, 166, 35, 0.14);
+    border-color: rgba(255, 224, 163, 0.65);
+    box-shadow: 0 0 12px rgba(245, 166, 35, 0.12);
+  }
+
+  &--error {
+    border-color: #ffbcad;
+  }
 }
 
 /* ---- Info do jogador ---- */
@@ -367,6 +395,41 @@
     color: rgba(252, 232, 195, 0.5);
     white-space: nowrap;
     flex-shrink: 0;
+  }
+
+  &__error {
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #ffbcad;
+  }
+
+  &__interest {
+    color: #ffe0a3;
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.3;
+
+    &--ready {
+      color: #a8ffc8;
+    }
+  }
+
+  &__interest-cancel {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: rgba(252, 232, 195, 0.65);
+    font: inherit;
+    font-size: 0.65rem;
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: wait;
+    }
   }
 }
 
@@ -446,6 +509,19 @@
   &--wait {
     opacity: 0.35;
     cursor: not-allowed;
+  }
+
+  &--interest {
+    &.action-btn--active {
+      background: rgba(245, 166, 35, 0.28);
+      border-color: rgba(255, 224, 163, 0.75);
+      color: #fff0c9;
+    }
+
+    &:disabled {
+      opacity: 1;
+      cursor: default;
+    }
   }
 
   /* ---- Variante: Não posso — vermelho realçado ---- */
@@ -953,6 +1029,7 @@
       height: 22px;
     }
   }
+
 }
 
 /* ---- Turma bar (full-width, topo da tela) ---- */

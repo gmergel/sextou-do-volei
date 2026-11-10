@@ -28,7 +28,7 @@ Como jogador elegível, quero poder confirmar minha presença no jogo para garan
 
 ### User Story 2 - Abertura Progressiva de Slots por Tempo (Priority: P2)
 
-Como jogador com prioridade mais baixa na fila, quero que slots adicionais abram progressivamente a cada 12 horas para que eu tenha a chance de confirmar presença mesmo estando mais atrás na fila.
+Como jogador com prioridade mais baixa na fila, quero que slots adicionais abram progressivamente a cada 4 horas para que eu tenha a chance de confirmar presença mesmo estando mais atrás na fila.
 
 **Why this priority**: Garante que a fila avance naturalmente mesmo sem ação de outros jogadores, dando previsibilidade ao sistema.
 
@@ -36,9 +36,9 @@ Como jogador com prioridade mais baixa na fila, quero que slots adicionais abram
 
 **Acceptance Scenarios**:
 
-1. **Given** um jogo criado há 12 horas com 14 vagas e 23 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** 16 jogadores são elegíveis (14+1+1)
-2. **Given** um jogo criado há 24 horas com 14 vagas e 23 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** 17 jogadores são elegíveis (14+1+2)
-3. **Given** um jogo criado há 96 horas com 14 vagas e 23 jogadores ativos, **When** o sistema recalcula elegibilidade, **Then** todos os 23 jogadores são elegíveis (14+1+8=23, cap atingido)
+1. **Given** um jogo criado há 4 horas com 14 vagas e 23 jogadores ativos, sem recusas, **When** o sistema recalcula elegibilidade, **Then** 15 jogadores são elegíveis (14+1)
+2. **Given** um jogo criado há 8 horas com 14 vagas e 23 jogadores ativos, sem recusas, **When** o sistema recalcula elegibilidade, **Then** 16 jogadores são elegíveis (14+2)
+3. **Given** um jogo criado há 36 horas com 14 vagas e 23 jogadores ativos, sem recusas, **When** o sistema recalcula elegibilidade, **Then** todos os 23 jogadores são elegíveis (14+9=23, cap atingido)
 
 ---
 
@@ -68,8 +68,8 @@ Como jogador não-elegível, quero ver um timer indicando quando meu slot vai ab
 
 **Acceptance Scenarios**:
 
-1. **Given** um jogador com prioridade 17 e 15 jogadores atualmente elegíveis (sem declines), **When** ele visualiza a tela do jogo, **Then** vê "Sua vez em 24h 00m" (precisa de 2 slots extras × 12h cada)
-2. **Given** um jogador com prioridade 16 e 15 jogadores atualmente elegíveis, **When** ele visualiza a tela do jogo, **Then** vê "Sua vez em 12h 00m" (precisa de 1 slot extra × 12h)
+1. **Given** um jogador com prioridade 17 e 15 jogadores atualmente elegíveis (sem declines), no instante de abertura do último slot, **When** ele visualiza a tela do jogo, **Then** vê "Sua vez em 8h 00m" (precisa de 2 slots extras × 4h cada)
+2. **Given** um jogador com prioridade 16 e 15 jogadores atualmente elegíveis, no instante de abertura do último slot, **When** ele visualiza a tela do jogo, **Then** vê "Sua vez em 4h 00m" (precisa de 1 slot extra × 4h)
 3. **Given** um jogador que se torna elegível enquanto visualiza a tela, **When** o timer chega a zero, **Then** o botão de confirmação é habilitado automaticamente
 
 ---
@@ -118,7 +118,7 @@ Como organizador, quero que jogadores que recusam e depois tentam voltar recebam
 
 ### Functional Requirements
 
-- **FR-001**: O sistema DEVE calcular o número de jogadores elegíveis usando a fórmula: `totalPlayers + 1 + floor(horasDesdeCreação / 12) + declinesDentroDoRange`
+- **FR-001**: O sistema DEVE calcular o número de jogadores elegíveis usando a fórmula: `totalPlayers + floor(horasDesdeCreação / 4) + declinesDentroDoRange`. O intervalo se aplica também aos jogos existentes, contado desde sua criação, sem aumentar a capacidade de confirmados.
 - **FR-002**: O sistema DEVE impedir jogadores não-elegíveis de confirmar presença (botão desabilitado na interface)
 - **FR-003**: O sistema DEVE liberar um slot adicional quando um jogador ELEGÍVEL recusa participação
 - **FR-004**: O sistema NÃO DEVE liberar slot adicional quando um jogador NÃO-ELEGÍVEL recusa
@@ -148,7 +148,7 @@ Como organizador, quero que jogadores que recusam e depois tentam voltar recebam
 - **SC-001**: Jogadores elegíveis conseguem confirmar presença em menos de 5 segundos após abrir a tela do jogo
 - **SC-002**: 100% dos jogadores não-elegíveis são impedidos de confirmar presença antes do seu slot abrir
 - **SC-003**: O timer de contagem regressiva é atualizado em tempo real com precisão de ±1 minuto
-- **SC-004**: A abertura de slots ocorre corretamente a cada 12 horas, validável por qualquer jogador observando a mudança de estado
+- **SC-004**: A abertura de slots ocorre corretamente a cada 4 horas, validável por qualquer jogador observando a mudança de estado
 - **SC-005**: Jogadores que abusam do sistema (decline + retorno) são penalizados em 100% dos casos aplicáveis
 - **SC-006**: A distribuição de vagas é percebida como justa por pelo menos 80% dos jogadores da turma
 
