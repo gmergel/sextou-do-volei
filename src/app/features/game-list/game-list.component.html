@@ -37,6 +37,11 @@
               <span class="game-card__location">📍 {{ game.location }}</span>
               <span class="game-card__players">👥 {{ game.totalPlayers }} vagas</span>
             </div>
+            <button
+              class="game-card__edit"
+              type="button"
+              (click)="editGame(game.uid, $event)"
+            >Editar</button>
           </li>
         }
       </ul>

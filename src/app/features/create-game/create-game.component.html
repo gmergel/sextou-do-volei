@@ -4,97 +4,149 @@
   <main class="container">
     <header class="header">
       <span class="header__icon">🏐</span>
-      <h4 class="header__brand">NOVO JOGO</h4>
-      <p class="header__sub">Monte o jogo e compartilhe o link!</p>
+      <h4 class="header__brand">{{ isEditing ? 'EDITAR JOGO' : 'NOVO JOGO' }}</h4>
+      <p class="header__sub">
+        {{ isEditing ? 'Altere os dados básicos do jogo.' : 'Monte o jogo e compartilhe o link!' }}
+      </p>
     </header>
 
-    <form class="form" (ngSubmit)="onSubmit()">
-      <!-- Turma -->
+    @if (isEditing && gameLoading()) {
+      <div class="form__field">Carregando jogo...</div>
+    } @else if (isEditing && gameLoadError()) {
       <div class="form__field">
-        <label class="form__label">Turma</label>
-        <div class="turma-options">
-          @for (key of turmaKeys; track key) {
-            <button
-              type="button"
-              class="turma-chip"
-              [class.turma-chip--active]="turma === key"
-              [class.turma-chip--sextou]="key === 'sextou'"
-              [class.turma-chip--domingou]="key === 'domingou'"
-              (click)="onTurmaChange(key)"
-            >
-              <span class="turma-chip__emoji">{{ turmas[key].emoji }}</span>
-              <span class="turma-chip__label">{{ turmas[key].shortLabel }}</span>
-            </button>
-          }
-        </div>
+        <p>{{ gameLoadError() }}</p>
+        <button class="form__btn" type="button" (click)="backToGames()">Voltar aos jogos</button>
       </div>
-
-      <!-- Data -->
-      <div class="form__field">
-        <label class="form__label">Data</label>
-        <input
-          class="form__input form__input--date"
-          type="date"
-          [(ngModel)]="date"
-          name="date"
-          required
-        />
-      </div>
-
-      <!-- Horário -->
-      <div class="form__field">
-        <label class="form__label">Horário</label>
-        <div class="time-options">
-          @for (preset of turmaConfig.timePresets; track preset.label; let i = $index) {
-            <button
-              type="button"
-              class="time-chip"
-              [class.time-chip--active]="timeOption === 'preset' + (i + 1)"
-              (click)="timeOption = $any('preset' + (i + 1))"
-            >{{ preset.label }}</button>
-          }
-
-          <button
-            type="button"
-            class="time-chip"
-            [class.time-chip--active]="timeOption === 'custom'"
-            (click)="timeOption = 'custom'"
-          >Outro</button>
-        </div>
-
-        @if (timeOption === 'custom') {
-          <div class="custom-time">
-            <div class="custom-time__field">
-              <span class="custom-time__label">Das</span>
-              <select
-                class="form__input form__input--select"
-                [(ngModel)]="customStartHour"
-                name="startHour"
-                (ngModelChange)="onStartHourChange()"
-              >
-                @for (h of startHours; track h) {
-                  <option [ngValue]="h">{{ h }}h</option>
-                }
-              </select>
-            </div>
-            <div class="custom-time__field">
-              <span class="custom-time__label">Até</span>
-              <select
-                class="form__input form__input--select"
-                [(ngModel)]="customEndHour"
-                name="endHour"
-              >
-                @for (h of endHours; track h) {
-                  <option [ngValue]="h">{{ h === 24 ? '00' : h }}h</option>
-                }
-              </select>
+    } @else {
+      <form class="form" (ngSubmit)="onSubmit()">
+        @if (!isEditing) {
+          <div class="form__field">
+            <label class="form__label">Turma</label>
+            <div class="turma-options">
+              @for (key of turmaKeys; track key) {
+                <button
+                  type="button"
+                  class="turma-chip"
+                  [class.turma-chip--active]="turma === key"
+                  [class.turma-chip--sextou]="key === 'sextou'"
+                  [class.turma-chip--domingou]="key === 'domingou'"
+                  [disabled]="isEditing"
+                  (click)="onTurmaChange(key)"
+                >
+                  <span class="turma-chip__emoji">{{ turmas[key].emoji }}</span>
+                  <span class="turma-chip__label">{{ turmas[key].shortLabel }}</span>
+                </button>
+              }
             </div>
           </div>
         }
-      </div>
 
-      <!-- Local -->
-      <div class="form__field">
+        <div class="form__field">
+          <label class="form__label">Data</label>
+          <input
+            class="form__input form__input--date"
+            type="date"
+            [(ngModel)]="date"
+            name="date"
+            required
+          />
+        </div>
+
+        <div class="form__field">
+          <label class="form__label" for="totalPlayers">Quantidade de jogadores</label>
+          <div class="player-count">
+            <button
+              class="player-count__button"
+              type="button"
+              aria-label="Diminuir quantidade de jogadores"
+              [disabled]="totalPlayers <= minPlayers"
+              (click)="adjustTotalPlayers(-1)"
+            >−</button>
+            <input
+              class="player-count__value"
+              id="totalPlayers"
+              type="text"
+              name="totalPlayers"
+              readonly
+              [(ngModel)]="totalPlayers"
+              aria-label="Quantidade total de jogadores"
+              aria-describedby="playerCountHint"
+            />
+            <button
+              class="player-count__button"
+              type="button"
+              aria-label="Aumentar quantidade de jogadores"
+              [disabled]="totalPlayers >= maxPlayers"
+              (click)="adjustTotalPlayers(1)"
+            >+</button>
+          </div>
+          <span class="player-count__hint" id="playerCountHint">
+            Opções de {{ minPlayers }} a {{ maxPlayers }}, sempre pares. Alterar o limite não remove confirmações existentes.
+          </span>
+        </div>
+
+        <div class="form__field">
+          <label class="form__label">Horário</label>
+          @if (legacyTimeFormat) {
+            <input
+              class="form__input"
+              type="text"
+              [(ngModel)]="time"
+              name="time"
+              required
+            />
+          } @else {
+            <div class="time-options">
+              @for (preset of turmaConfig.timePresets; track preset.label; let i = $index) {
+                <button
+                  type="button"
+                  class="time-chip"
+                  [class.time-chip--active]="timeOption === 'preset' + (i + 1)"
+                  (click)="selectTimeOption($any('preset' + (i + 1)))"
+                >{{ preset.label }}</button>
+              }
+
+              <button
+                type="button"
+                class="time-chip"
+                [class.time-chip--active]="timeOption === 'custom'"
+                (click)="selectTimeOption('custom')"
+              >Outro</button>
+            </div>
+
+            @if (timeOption === 'custom') {
+              <div class="custom-time">
+                <div class="custom-time__field">
+                  <span class="custom-time__label">Das</span>
+                  <select
+                    class="form__input form__input--select"
+                    [(ngModel)]="customStartHour"
+                    name="startHour"
+                    (ngModelChange)="onStartHourChange()"
+                  >
+                    @for (h of startHours; track h) {
+                      <option [ngValue]="h">{{ h }}h</option>
+                    }
+                  </select>
+                </div>
+                <div class="custom-time__field">
+                  <span class="custom-time__label">Até</span>
+                  <select
+                    class="form__input form__input--select"
+                    [(ngModel)]="customEndHour"
+                    name="endHour"
+                  >
+                    @for (h of endHours; track h) {
+                      <option [ngValue]="h">{{ h === 24 ? '00' : h }}h</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            }
+          }
+        </div>
+
+        <div class="form__field">
         <label class="form__label">Local</label>
         <div class="location-options">
           @for (loc of locations; track loc) {
@@ -147,47 +199,57 @@
                 }
               </ul>
             }
-            @if (location && locationMode === 'custom') {
+            @if (location) {
               <div class="location-search__selected">
                 ✅ {{ location }}
+                @if (locationAddress) {
+                  <small>{{ locationAddress }}</small>
+                }
               </div>
             }
           </div>
         }
-      </div>
+        </div>
 
-      <!-- Roster -->
-      <div class="form__field">
-        <label class="form__label">Lista de Jogadores</label>
-        @if (rosterLoading()) {
-          <div class="roster-status">Carregando lista...</div>
-        } @else if (rosterError()) {
-          <div class="roster-status roster-status--error">
-            ⚠️ Não foi possível carregar a lista. Verifique sua conexão.
+        @if (!isEditing) {
+          <div class="form__field">
+            <label class="form__label">Lista de Jogadores</label>
+            @if (rosterLoading()) {
+              <div class="roster-status">Carregando lista...</div>
+            } @else if (rosterError()) {
+              <div class="roster-status roster-status--error">
+                ⚠️ Não foi possível carregar a lista. Verifique sua conexão.
+              </div>
+            } @else if (currentRosterVersion()) {
+              <app-roster-preview [turmaId]="turma" />
+              <app-roster-editor
+                [turmaId]="turma"
+                [currentVersion]="currentRosterVersion()"
+                (saved)="onRosterSaved($event)"
+                (editingChanged)="onRosterEditingChanged($event)"
+              />
+            }
           </div>
-        } @else if (currentRosterVersion()) {
-          <app-roster-preview [turmaId]="turma" />
-          <app-roster-editor
-            [turmaId]="turma"
-            [currentVersion]="currentRosterVersion()"
-            (saved)="onRosterSaved($event)"
-            (editingChanged)="onRosterEditingChanged($event)"
-          />
         }
-      </div>
 
-      <!-- Submit -->
-      <button
-        class="form__btn"
-        type="submit"
-        [disabled]="creating() || !isValid"
-      >
-        @if (creating()) {
-          <span>Criando...</span>
-        } @else {
-          <span>{{ turmaConfig.emoji }} Criar Jogo</span>
+        @if (saveError()) {
+          <div class="roster-status roster-status--error">{{ saveError() }}</div>
         }
-      </button>
-    </form>
+
+        <button
+          class="form__btn"
+          type="submit"
+          [disabled]="creating() || !isValid"
+        >
+          @if (creating()) {
+            <span>Salvando...</span>
+          } @else if (isEditing) {
+            <span>Salvar alterações</span>
+          } @else {
+            <span>{{ turmaConfig.emoji }} Criar Jogo</span>
+          }
+        </button>
+      </form>
+    }
   </main>
 </div>

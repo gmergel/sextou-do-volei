@@ -205,6 +205,17 @@
     color: rgba(252, 232, 195, 0.5);
   }
 
+  &__edit {
+    align-self: flex-end;
+    padding: 6px 12px;
+    border: 1px solid rgba(252, 232, 195, 0.35);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--sand-light);
+    font: inherit;
+    cursor: pointer;
+  }
+
   &--skeleton {
     cursor: default;
     pointer-events: none;

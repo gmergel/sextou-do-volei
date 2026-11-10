@@ -40,7 +40,7 @@ npm.cmd start
 3. Selecionar turma "Sextou"
 
 **Expected**:
-- Preview do roster aparece: "23 jogadores ativos | Versão de [data atual]"
+- Preview do roster aparece: "25 jogadores ativos | Versão de [data atual]"
 - Lista de nomes ordenada por prioridade (Dani Griza, Ger, Carlos Serafim, Raquel, ...)
 - No Firestore: documento criado em `turmas/sextou/roster-versions/` com `deviceInfo.source: "Sistema"`
 

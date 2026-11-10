@@ -34,8 +34,13 @@ export class GameListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/jogo', uid]);
   }
 
+  editGame(uid: string, event: Event): void {
+    event.stopPropagation();
+    this.router.navigate(['/jogo', uid, 'editar']);
+  }
+
   createGame(): void {
-    this.router.navigate(['/jogo/new']);
+    this.router.navigate(['/jogo/novo']);
   }
 
   formatDate(dateStr: string): string {

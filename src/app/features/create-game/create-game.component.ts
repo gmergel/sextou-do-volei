@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { GameService } from '../players/game.service';
 import { TurmaId, TURMAS, TurmaConfig } from '../../models/turma.model';
@@ -18,12 +18,23 @@ import { RosterVersion } from '../../models/roster.model';
 })
 export class CreateGameComponent {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly gameService = inject(GameService);
   private readonly nominatim = inject(NominatimService);
   private readonly rosterService = inject(RosterService);
 
   readonly creating = signal(false);
-  readonly totalPlayers = 14;
+  readonly gameLoading = signal(false);
+  readonly gameLoadError = signal('');
+  readonly saveError = signal('');
+  readonly minPlayers = 12;
+  readonly maxPlayers = 20;
+  totalPlayers = 14;
+  readonly gameId = this.route.snapshot.paramMap.get('gameId');
+
+  get isEditing(): boolean {
+    return this.gameId !== null;
+  }
 
   // Roster state
   readonly currentRosterVersion = signal<RosterVersion | null>(null);
@@ -41,9 +52,54 @@ export class CreateGameComponent {
   }
 
   date = this.getNextGameDay(TURMAS.sextou.dayOfWeek);
+  time = '';
+  legacyTimeFormat = false;
 
   constructor() {
-    this.loadRoster(this.turma);
+    if (this.gameId) {
+      this.loadGame(this.gameId);
+    } else {
+      this.loadRoster(this.turma);
+    }
+  }
+
+  private async loadGame(gameId: string): Promise<void> {
+    this.gameLoading.set(true);
+    try {
+      const game = await this.gameService.getGame(gameId);
+      if (!game) {
+        this.gameLoadError.set('Jogo não encontrado.');
+        return;
+      }
+
+      this.turma = game.turma;
+      this.date = game.date;
+      this.time = game.time;
+      this.totalPlayers = this.normalizeTotalPlayers(game.totalPlayers ?? 14);
+      this.location = game.location;
+      this.locationAddress = game.locationAddress ?? '';
+      this.locationMode = this.locations.includes(game.location) ? 'preset' : 'custom';
+
+      const presetIndex = TURMAS[game.turma].timePresets.findIndex(
+        (preset) => preset.value === game.time,
+      );
+      if (presetIndex >= 0) {
+        this.timeOption = `preset${presetIndex + 1}` as typeof this.timeOption;
+      } else {
+        const customTime = game.time.match(/^\s*(\d{1,2})h\s*[–-]\s*(\d{1,2})h\s*$/);
+        if (customTime) {
+          this.timeOption = 'custom';
+          this.customStartHour = Number(customTime[1]);
+          this.customEndHour = Number(customTime[2]) || 24;
+        } else {
+          this.legacyTimeFormat = true;
+        }
+      }
+    } catch {
+      this.gameLoadError.set('Não foi possível carregar o jogo. Tente novamente.');
+    } finally {
+      this.gameLoading.set(false);
+    }
   }
 
   onTurmaChange(turma: TurmaId): void {
@@ -186,7 +242,25 @@ export class CreateGameComponent {
     }
   }
 
+  adjustTotalPlayers(amount: number): void {
+    this.totalPlayers = Math.min(
+      this.maxPlayers,
+      Math.max(this.minPlayers, this.totalPlayers + amount * 2),
+    );
+  }
+
+  private normalizeTotalPlayers(total: number): number {
+    const clamped = Math.min(this.maxPlayers, Math.max(this.minPlayers, total));
+    return clamped % 2 === 0 ? clamped : clamped + 1;
+  }
+
+  selectTimeOption(option: 'preset1' | 'preset2' | 'preset3' | 'custom'): void {
+    this.timeOption = option;
+    this.legacyTimeFormat = false;
+  }
+
   get resolvedTime(): string {
+    if (this.legacyTimeFormat) return this.time;
     const presets = this.turmaConfig.timePresets;
     if (this.timeOption === 'preset1' && presets[0]) return presets[0].value;
     if (this.timeOption === 'preset2' && presets[1]) return presets[1].value;
@@ -196,22 +270,54 @@ export class CreateGameComponent {
   }
 
   get isValid(): boolean {
-    return !!this.date && !!this.location && !this.rosterEditing() && !this.rosterError() && !!this.currentRosterVersion();
+    const validPlayerCount =
+      Number.isInteger(this.totalPlayers) &&
+      this.totalPlayers % 2 === 0 &&
+      this.totalPlayers >= this.minPlayers &&
+      this.totalPlayers <= this.maxPlayers;
+    if (this.isEditing) {
+      return validPlayerCount && !!this.date && !!this.time.trim() && !!this.location.trim() &&
+        !this.gameLoading() && !this.gameLoadError();
+    }
+    return validPlayerCount && !!this.date && !!this.location && !this.rosterEditing() && !this.rosterError() && !!this.currentRosterVersion();
   }
 
   async onSubmit(): Promise<void> {
     if (!this.isValid) return;
 
     this.creating.set(true);
-    const game = await this.gameService.createGame({
-      turma: this.turma,
-      date: this.date,
-      time: this.resolvedTime,
-      location: this.location,
-      locationAddress: this.locationAddress || undefined,
-      totalPlayers: this.totalPlayers,
-      rosterVersionId: this.currentRosterVersion()?.id,
-    });
-    this.router.navigate(['/jogo', game.uid]);
+    this.saveError.set('');
+    try {
+      if (this.gameId) {
+        await this.gameService.updateGame(this.gameId, {
+          date: this.date,
+          time: this.resolvedTime,
+          location: this.location.trim(),
+          locationAddress: this.locationAddress,
+          totalPlayers: this.totalPlayers,
+        });
+        this.router.navigate(['/jogo', this.gameId]);
+        return;
+      }
+
+      const game = await this.gameService.createGame({
+        turma: this.turma,
+        date: this.date,
+        time: this.resolvedTime,
+        location: this.location,
+        locationAddress: this.locationAddress || undefined,
+        totalPlayers: this.totalPlayers,
+        rosterVersionId: this.currentRosterVersion()?.id,
+      });
+      this.router.navigate(['/jogo', game.uid]);
+    } catch {
+      this.saveError.set('Não foi possível salvar o jogo. Tente novamente.');
+    } finally {
+      this.creating.set(false);
+    }
+  }
+
+  backToGames(): void {
+    this.router.navigate(['/jogos']);
   }
 }

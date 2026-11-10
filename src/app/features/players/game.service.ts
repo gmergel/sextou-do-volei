@@ -11,6 +11,7 @@ import {
   updateDoc,
   addDoc,
   deleteDoc,
+  deleteField,
   orderBy,
   query,
 } from '@angular/fire/firestore';
@@ -51,6 +52,7 @@ export class GameService {
   }
 
   async createGame(data: Omit<Game, 'uid' | 'createdAt'>): Promise<Game> {
+    this.validateTotalPlayers(data.totalPlayers);
     const game: Game = {
       ...data,
       uid: crypto.randomUUID(),
@@ -60,6 +62,29 @@ export class GameService {
     await setDoc(gameDoc, game);
     await this.seedPlayers(game.uid, game.turma);
     return game;
+  }
+
+  async updateGame(
+    gameId: string,
+    data: Pick<Game, 'date' | 'time' | 'location' | 'totalPlayers'> & { locationAddress?: string },
+  ): Promise<void> {
+    this.validateTotalPlayers(data.totalPlayers);
+    const gameDoc = doc(this.firestore, 'games', gameId);
+    await updateDoc(gameDoc, {
+      ...data,
+      locationAddress: data.locationAddress?.trim() || deleteField(),
+    });
+  }
+
+  private validateTotalPlayers(totalPlayers: number): void {
+    if (
+      !Number.isInteger(totalPlayers) ||
+      totalPlayers < 12 ||
+      totalPlayers > 20 ||
+      totalPlayers % 2 !== 0
+    ) {
+      throw new RangeError('A quantidade de jogadores deve ser par, entre 12 e 20.');
+    }
   }
 
   players$(gameId: string): Observable<Player[]> {

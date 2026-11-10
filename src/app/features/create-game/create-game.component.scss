@@ -189,6 +189,63 @@
   }
 }
 
+.player-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 8px;
+  border: 2px solid var(--glass-border);
+  border-radius: 12px;
+  background: var(--glass-bg);
+
+  &__button {
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(252, 232, 195, 0.35);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--white);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__value {
+    width: 72px;
+    border: 0;
+    background: transparent;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 2rem;
+    text-align: center;
+    appearance: textfield;
+
+    &::-webkit-inner-spin-button,
+    &::-webkit-outer-spin-button {
+      margin: 0;
+      appearance: none;
+    }
+
+    &:focus {
+      outline: 2px solid var(--sunset-orange);
+      outline-offset: 3px;
+      border-radius: 4px;
+    }
+  }
+
+  &__hint {
+    color: rgba(252, 232, 195, 0.7);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+}
+
 /* ---- Chips de horário ---- */
 .time-options {
   display: flex;

@@ -21,6 +21,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'jogo/:gameId/editar',
+    loadComponent: () =>
+      import('./features/create-game/create-game.component').then(
+        (m) => m.CreateGameComponent
+      ),
+  },
+  {
     path: 'jogo/:gameId',
     loadComponent: () =>
       import('./features/players/player-list.component').then(
